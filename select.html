@@ -70,15 +70,37 @@
       color: white;
       font-size: 2rem;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: 'Noto Sans JP', sans-serif;
       z-index: 999;
     }
+    #progressBarContainer {
+      width: 80%;
+      height: 20px;
+      background-color: #444;
+      border-radius: 10px;
+      margin: 20px auto 0 auto;
+      overflow: hidden;
+    }
+
+    #progressBar {
+      width: 0%;
+      height: 100%;
+      background-color: #ff90b3;
+      border-radius: 10px 0 0 10px;
+      transition: width 0.3s ease;
+    }
   </style>
 </head>
 <body>
-  <div id="loadingScreen">楽曲を読み込んでいます...</div>
+  <div id="loadingScreen">
+    楽曲を読み込んでいます...
+    <div id="progressBarContainer">
+      <div id="progressBar"></div>
+    </div>
+  </div>
   <header>
     <h1>楽曲選択</h1>
   </header>
@@ -109,11 +131,16 @@
     ];
 
     let videosLoaded = 0;
+    const totalVideos = preloadVideos.length;
     const loadingScreen = document.getElementById('loadingScreen');
+    const progressBar = document.getElementById('progressBar');
 
     function checkPreloadComplete() {
       videosLoaded++;
-      if (videosLoaded >= preloadVideos.length) {
+      const percent = (videosLoaded / totalVideos) * 100;
+      progressBar.style.width = percent + '%';
+
+      if (videosLoaded >= totalVideos) {
         loadingScreen.style.display = 'none';
       }
     }
@@ -125,7 +152,6 @@
           checkPreloadComplete();
         })
         .catch(() => {
-          // エラー時もカウントして進行
           checkPreloadComplete();
         });
     });
