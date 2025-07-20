@@ -49,7 +49,7 @@
       border-bottom: 4px solid red;
       position: relative;
       overflow: hidden;
-      height: calc(100% - 100px); /* 下に少し余白 */
+      height: calc(100% - 200px); /* 下に少し余白 */
     }
     .key-label {
       position: absolute;
@@ -83,6 +83,20 @@
       transform: scale(1.5);
       transition: transform 0.1s ease, background 0.1s ease;
     }
+    #judgmentText {
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3rem;
+      font-weight: bold;
+      color: white;
+      font-family: 'Noto Sans JP', sans-serif;
+      text-shadow: 0 0 10px black;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
   </style>
 </head>
 <body>
@@ -100,6 +114,8 @@
   <div class="lane" data-lane="3"><div class="key-label">K</div></div>
 </div>
 
+<div id="judgmentText"></div>
+
 <script>
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
@@ -113,6 +129,18 @@ bgVideo.load();
 const lanes = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('#lanes .key-label');
 const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
+
+const judgmentText = document.getElementById('judgmentText');
+
+function showJudgment(result) {
+  judgmentText.textContent = result;
+  judgmentText.style.opacity = '1';
+  setTimeout(() => {
+    judgmentText.style.opacity = '0';
+  }, 500);
+}
+
+const approachTime = 2000; // ノーツ出現から赤ライン到達までの時間
 
 document.addEventListener('keydown', e => {
   const key = e.key.toLowerCase();
@@ -131,8 +159,13 @@ document.addEventListener('keydown', e => {
       const targetPos = laneHeight - 50; // 判定ライン付近
       const distance = Math.abs(noteTop - targetPos);
       if (distance < 50) {  // 判定範囲
-        let score = Math.max(0, 100 - distance * 2); // 距離に応じた減点
-        console.log("得点: " + Math.round(score));
+        if (distance < 15) {
+          showJudgment("GREAT");
+        } else if (distance < 30) {
+          showJudgment("GOOD");
+        } else {
+          showJudgment("MISS");
+        }
         note.remove();
       }
     });
@@ -177,7 +210,7 @@ function spawnNote(noteData) {
   lanes[laneIndex].appendChild(note);
 
   const laneHeight = lanes[laneIndex].offsetHeight;
-  const speed = laneHeight / 2000; // 2秒で到達
+  const speed = laneHeight / approachTime; // 2秒で到達
 
   let start = performance.now();
   let slideDone = false;
@@ -234,7 +267,7 @@ function gameLoop() {
   const now = performance.now() - startTime;
 
   for (let i = 0; i < chart.length; i++) {
-    if (chart[i].time <= now) {
+    if (chart[i].time - approachTime <= now) {
       spawnNote(chart[i]);
       chart.splice(i, 1);
       i--;
