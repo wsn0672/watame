@@ -345,17 +345,19 @@ function spawnNote(noteData) {
   const judgmentLine = lanes[laneIndex].querySelector('.judgeline');
   const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
-  // 現在時刻と譜面時間から移動時間を計算
-  const nowTime = performance.now() - startTime;
-  const timeUntilHit = noteData.time - nowTime;
-  const speed = targetY / timeUntilHit;
+  // const nowTime = performance.now() - startTime;
+  // const timeUntilHit = noteData.time - nowTime;
+  // const speed = targetY / timeUntilHit;
+
+  const approachTime = 1000; // 1秒で判定エリアに到達
+  const speed = targetY / approachTime;
 
   // 譜面のタイムスタンプをdatasetに保存
   note.dataset.time = noteData.time;
 
   lanes[laneIndex].appendChild(note);
 
-  const approachTime = 1000; // 1秒で到達
+  // const approachTime = 1000; // 1秒で到達
   
 
   let start = performance.now();
