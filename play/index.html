@@ -43,20 +43,19 @@
       height: 100vh; /* レーンを画面いっぱいの高さに */
     }
     .lane {
-      width: 120px;
+      width: 180px;
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid white;
+      border-bottom: 4px solid red;
       position: relative;
       overflow: hidden;
       height: calc(100% - 100px); /* 下に少し余白 */
     }
-    #keys {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 40px;
+    .key-label {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
       font-size: 2rem;
       color: white;
       font-family: monospace;
@@ -78,21 +77,6 @@
     .note.slide {
       background: #c060ff;
     }
-    #titleScreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
-      color: white;
-      font-size: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Noto Sans JP', sans-serif;
-      z-index: 99;
-    }
     .key-press {
       background: #ff90b3;
       color: #222;
@@ -110,20 +94,11 @@
 
 <!-- レーン -->
 <div id="lanes">
-  <div class="lane" data-lane="0"></div>
-  <div class="lane" data-lane="1"></div>
-  <div class="lane" data-lane="2"></div>
-  <div class="lane" data-lane="3"></div>
+  <div class="lane" data-lane="0"><div class="key-label">D</div></div>
+  <div class="lane" data-lane="1"><div class="key-label">F</div></div>
+  <div class="lane" data-lane="2"><div class="key-label">J</div></div>
+  <div class="lane" data-lane="3"><div class="key-label">K</div></div>
 </div>
-
-<div id="keys">
-  <div>D</div>
-  <div>F</div>
-  <div>J</div>
-  <div>K</div>
-</div>
-
-<div id="titleScreen"></div>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -136,7 +111,7 @@ bgSource.src = "/musics/" + song;
 bgVideo.load();
 
 const lanes = document.querySelectorAll('.lane');
-const keyDivs = document.querySelectorAll('#keys div');
+const keyDivs = document.querySelectorAll('#lanes .key-label');
 const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
 
 document.addEventListener('keydown', e => {
@@ -154,8 +129,11 @@ document.addEventListener('keydown', e => {
       const noteTop = parseFloat(note.style.top);
       const laneHeight = lane.offsetHeight;
       const targetPos = laneHeight - 50; // 判定ライン付近
-      if (Math.abs(noteTop - targetPos) < 30) {
-        note.remove(); // 判定成功
+      const distance = Math.abs(noteTop - targetPos);
+      if (distance < 50) {  // 判定範囲
+        let score = Math.max(0, 100 - distance * 2); // 距離に応じた減点
+        console.log("得点: " + Math.round(score));
+        note.remove();
       }
     });
   }
@@ -168,15 +146,10 @@ fetch("/notes/" + chartFile)
     return res.json();
   })
   .then(data => {
-    const titleScreen = document.getElementById('titleScreen');
-    titleScreen.textContent = decodeURIComponent(song).replace(/\.[^/.]+$/, '');
     chart = data;
-    setTimeout(() => {
-      titleScreen.style.display = 'none';
-      bgVideo.play();
-      startTime = performance.now();
-      gameLoop();
-    }, 5000);
+    bgVideo.play();
+    startTime = performance.now();
+    gameLoop();
   })
   .catch(err => {
     console.error(err);
