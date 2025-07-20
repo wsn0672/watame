@@ -41,10 +41,27 @@ aside {
 
 /* Removed text-align: right from header h1 */
 
+header h1 {
+  text-align: left;
+}
+
 .start-button {
   display: block;
   margin: 10px auto;
   font-size: 1.2em;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 25vh; /* 縦位置1:3あたりに調整 */
+}
+
+.credit-section {
+  margin-top: 20px;
+  text-align: center;
 }
 </style>
 </head>
@@ -89,10 +106,14 @@ aside {
       </section><br>
       <p>バグとかあったら<a href="https://docs.google.com/forms/d/e/1FAIpQLSdID9_vDyH1WsCCQ72nE5ol20sshnQJJcGK2rWcqqu4oZ2J9Q/viewform?usp=header">フォームから</a>報告ください</p>
     </main>
-    <button class="start-button" onclick="location.href='/select.html'">▶ ゲームをはじめる</button>
-    <h2>クレジット表記</h2>
-    <p>© 2025 Cover Corp.<br>
-    本サイトは非公式の二次創作です。</p>
+    <div class="sidebar">
+      <button class="start-button" onclick="location.href='/select.html'">▶ ゲームをはじめる</button>
+      <div class="credit-section">
+        <h2>クレジット表記</h2>
+        <p>© 2025 Cover Corp.<br>
+        本サイトは非公式の二次創作です。</p>
+      </div>
+    </div>
   </div>
 
 <button id="copyUaBtn" style="font-size: 0.8rem; position: fixed; bottom: 10px; right: 10px;">
