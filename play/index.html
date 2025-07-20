@@ -45,12 +45,20 @@
     .lane {
       width: 180px;
       background: rgba(255, 255, 255, 0.1);
-      border: 2px solid white;
-      border-bottom: 4px solid red;
+      border: none;
       position: relative;
       overflow: hidden;
-      height: calc(100% - 200px); /* レーンをさらに伸ばして赤線の後に余白 */
-      padding-bottom: 50px; /* 赤線の後に余白を確保 */
+      height: calc(100% - 100px);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .lane::after {
+      content: "";
+      display: block;
+      height: 4px;
+      background: red;
+      margin-bottom: 80px; /* 赤線の下に余白 */
     }
     .key-label {
       position: absolute;
