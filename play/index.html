@@ -343,6 +343,15 @@ function triggerHitEffect(laneIndex) {
 }
 
 document.addEventListener('keydown', e => {
+  // Rキーで即リザルト表示
+  if (e.key.toLowerCase() === 'r') {
+    if (!resultShown) {
+      resultShown = true;
+      showResult();
+      bgVideo.pause();
+    }
+    return;
+  }
   const key = e.key.toLowerCase();
   if (keyMap[key] !== undefined) {
     const index = keyMap[key];
