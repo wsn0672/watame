@@ -11,6 +11,10 @@
       text-align: center;
       margin: 0;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100vh;
     }
     h1 {
       margin: 20px 0;
@@ -52,6 +56,10 @@
       transition: opacity 0.5s ease;
       background: black;
     }
+    main {
+      margin-top: auto;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -63,15 +71,6 @@
   <video id="bgVideo" autoplay loop playsinline>
     <source id="bgSource" src="" type="video/mp4" />
   </video>
-
-  <main>
-    <ul class="song-list">
-      <li><button data-file="mysong.mp4" data-mv="/musics/mysong.mp4" data-chorus="45.5">My Song</button></li>
-      <li><button data-file="aimaishokora-te.mp4" data-mv="/musics/aimaishokora-te.mp4" data-chorus="101.5">愛昧ショコラーテ</button></li>
-      <li><button data-file="watameister.mp4" data-mv="/musics/watameister.mp4" data-chorus="62.5">わためマイスター</button></li>
-      <li><button data-file="biri.mp4" data-mv="/musics/biri.mp4" data-chorus="58">ビリ</button></li>
-    </ul>
-  </main>
 
   <script>
     const bgVideo = document.getElementById('bgVideo');
@@ -96,7 +95,7 @@ document.querySelectorAll('.song-list button').forEach(button => {
       bgVideo.onloadedmetadata = () => {
         bgVideo.currentTime = chorus;
         bgVideo.muted = false;
-        bgVideo.style.opacity = 0.15;
+        bgVideo.style.opacity = 0.3;
       };
     }
   });
@@ -112,5 +111,13 @@ document.querySelectorAll('.song-list button').forEach(button => {
   });
 });
   </script>
+  <main>
+    <ul class="song-list">
+      <li><button data-file="mysong.mp4" data-mv="/musics/mysong.mp4" data-chorus="45.5">My Song</button></li>
+      <li><button data-file="aimaishokora-te.mp4" data-mv="/musics/aimaishokora-te.mp4" data-chorus="101.5">愛昧ショコラーテ</button></li>
+      <li><button data-file="watameister.mp4" data-mv="/musics/watameister.mp4" data-chorus="62.5">わためマイスター</button></li>
+      <li><button data-file="biri.mp4" data-mv="/musics/biri.mp4" data-chorus="58">ビリ</button></li>
+    </ul>
+  </main>
 </body>
 </html>
