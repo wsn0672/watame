@@ -25,6 +25,9 @@
       background: black;
       overflow: hidden;
     }
+    #finalScoreTitle {
+      margin-top: 200px;
+    }
     #shareXButton {
       font-size: 1.5rem;
       background-color: #1da1f2;
@@ -178,7 +181,7 @@
       background: rgba(0,0,0,0.9);
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       color: white;
       font-size: 4rem;
@@ -610,7 +613,7 @@ document.addEventListener('keydown', e => {
 
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
-  const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓`);
+  const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓\n`);
   const shareUrl = `https://x.com/intent/tweet?text=${text}%20${url}`;
   window.open(shareUrl, '_blank');
 });
