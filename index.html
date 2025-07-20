@@ -20,49 +20,79 @@
     <!-- 自作CSS -->
     <link rel="stylesheet" href="/css/style.css" />
 
+<style>
+.container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+main {
+  flex: 2;
+}
+
+aside {
+  flex: 1;
+  background: #f5f5f5;
+  padding: 1em;
+  border-radius: 8px;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+}
+</style>
 </head>
 <body>
   <header>
     <h1>wsn0672の作品 #わためと自由研究2025</h1>
   </header>
 
-  <main>
-    <p>わためと自由研究2025!ってことて<br>わためぇソングを収録した音ゲーを作ってみました<br></p>
-    <section>
-      <h2>このゲームについて</h2>
-      <p>
-        わためぇの曲を収録したPC向け音ゲーです<br>
-        譜面は手打ちなのでズレてるかもしれません。許して<br>
-      </p>
-    </section>
-    <section>
-      <h2>あそびかた</h2>
-      <p>
-        D,F,J,Kキーで操作します<br>
-        ノーツの色によって効果があります<br>
-        <strong>水色ノーツ</strong>：直進します。最大で1000ポイント獲得できます<br>
-        <strong>橙色ノーツ</strong>：直進しますが、最大で2000ポイント獲得できます<br>
-        <strong>紫色ノーツ</strong>：右や左のレーンに突然ずれることがあります。得点は水色と一緒です<br>
-      </p>
-    </section>
+  <div class="container">
+    <main>
+      <p>わためと自由研究2025!ってことて<br>わためぇソングを収録した音ゲーを作ってみました<br></p>
+      <section>
+        <h2>このゲームについて</h2>
+        <p>
+          わためぇの曲を収録したPC向け音ゲーです<br>
+          譜面は手打ちなのでズレてるかもしれません。許して<br>
+        </p>
+      </section>
+      <section>
+        <h2>あそびかた</h2>
+        <p>
+          D,F,J,Kキーで操作します<br>
+          ノーツの色によって効果があります<br>
+          <strong>水色ノーツ</strong>：直進します。最大で1000ポイント獲得できます<br>
+          <strong>橙色ノーツ</strong>：直進しますが、最大で2000ポイント獲得できます<br>
+          <strong>紫色ノーツ</strong>：右や左のレーンに突然ずれることがあります。得点は水色と一緒です<br>
+        </p>
+      </section>
 <br>
-    <button onclick="location.href='/select.html'">▶ ゲームをはじめる</button>
-
-    <section>
-    <p>
-        ポイントは 2000 - ズレたミリ秒 x 5 で計算されます (橙色の場合はこれの2倍)<br>
-        MISSは得点の10%が削られます。橙色をMISSした場合は得点の20%が削られます<br>
-    </p>
-    </section>
-    <section>
-      <h2>作者について</h2>
+      <section>
       <p>
-        作者(<a href="https://x.com/wsn0672">wsn0672</a>)は東京都に住む中学2年生<br>
-        小6のときにわためいとになったらしい
+          ポイントは 2000 - ズレたミリ秒 x 5 で計算されます (橙色の場合はこれの2倍)<br>
+          MISSは得点の10%が削られます。橙色を逃した場合は得点の20%が削られます<br>
       </p>
-    </section><br>
-    <p>バグとかあったら<a href="https://docs.google.com/forms/d/e/1FAIpQLSdID9_vDyH1WsCCQ72nE5ol20sshnQJJcGK2rWcqqu4oZ2J9Q/viewform?usp=header">フォームから</a>報告ください</p>
-</main>
+      </section>
+      <section>
+        <h2>作者について</h2>
+        <p>
+          作者(<a href="https://x.com/wsn0672">wsn0672</a>)は東京都に住む中学2年生<br>
+          小6のときにわためいとになったらしい
+        </p>
+      </section><br>
+      <p>バグとかあったら<a href="https://docs.google.com/forms/d/e/1FAIpQLSdID9_vDyH1WsCCQ72nE5ol20sshnQJJcGK2rWcqqu4oZ2J9Q/viewform?usp=header">フォームから</a>報告ください</p>
+    </main>
+    <aside>
+      <h2>クレジット表記</h2>
+      <p>© 2025 Cover Corp.<br>
+      本サイトは非公式の二次創作です。</p>
+      <button onclick="location.href='/select.html'">▶ ゲームをはじめる</button>
+    </aside>
+  </div>
 
 <button id="copyUaBtn" style="font-size: 0.8rem; position: fixed; bottom: 10px; right: 10px;">
   UAをコピー (報告用)
