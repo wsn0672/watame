@@ -53,12 +53,23 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       object-fit: cover;
-      opacity: 0;
-      opacity: 0.3;
+      opacity: 1;
       pointer-events: none;
       z-index: -1;
       transition: opacity 0.5s ease;
       background: black;
+    }
+    #pinkOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(255, 192, 203, 0.2); /* 薄いピンク半透明 */
+      pointer-events: none; /* 背景への干渉防止 */
+      z-index: 0;
+      opacity: 1;
+      transition: opacity 0.3s ease;
     }
     #loadingScreen {
       position: fixed;
@@ -110,6 +121,7 @@
   <video id="bgVideo" autoplay loop playsinline>
     <source id="bgSource" src="" type="video/mp4" />
   </video>
+  <div id="pinkOverlay"></div>
 
   <main>
     <ul class="song-list">
@@ -166,8 +178,13 @@
       bgVideo.muted = true;
       bgVideo.play().catch(() => {});
     });
+const pinkOverlay = document.getElementById('pinkOverlay');
+let hoverActive = false;
+
 document.querySelectorAll('.song-list button').forEach(button => {
   button.addEventListener('mouseenter', () => {
+    hoverActive = true;
+    pinkOverlay.style.opacity = '0';
     const mv = button.getAttribute('data-mv');
     const chorus = parseFloat(button.getAttribute('data-chorus')) || 0;
     if (mv && videoBlobs[mv]) {
@@ -181,12 +198,17 @@ document.querySelectorAll('.song-list button').forEach(button => {
       bgVideo.onloadedmetadata = () => {
         bgVideo.currentTime = chorus;
         bgVideo.muted = false;
-        bgVideo.style.opacity = 0.3;
       };
     }
   });
 
   button.addEventListener('mouseleave', () => {
+    hoverActive = false;
+    setTimeout(() => {
+      if (!hoverActive) {
+        pinkOverlay.style.opacity = '1';
+      }
+    }, 100);
     bgVideo.pause();
     bgVideo.style.opacity = 0;
   });
