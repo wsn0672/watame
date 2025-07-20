@@ -44,8 +44,9 @@
     }
     .lane {
       width: 180px;
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
+      background: rgba(30, 30, 30, 0.6); /* 半透明ダーク背景 */
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 15px rgba(255,255,255,0.3); /* 光る枠線 */
       position: relative;
       overflow: hidden;
       height: calc(100% - 100px);
@@ -121,6 +122,18 @@
       font-family: 'Noto Sans JP', sans-serif;
       z-index: 999;
     }
+    #hitEffect {
+      position: fixed;
+      width: 60vw;
+      height: 4px;
+      background: #ff90b3;
+      top: 85vh;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.1s ease;
+      z-index: 5;
+    }
   </style>
 </head>
 <body>
@@ -154,6 +167,7 @@
 </div>
 
 <div id="judgmentText"></div>
+<div id="hitEffect"></div>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -162,8 +176,31 @@ const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 
 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
-bgSource.src = "/musics/" + song;
-bgVideo.load();
+
+const videoCache = new Map();
+
+function preloadMV(src) {
+  return new Promise(resolve => {
+    if (videoCache.has(src)) {
+      resolve();
+      return;
+    }
+    const video = document.createElement('video');
+    video.src = src;
+    video.preload = "auto";
+    video.onloadeddata = () => {
+      videoCache.set(src, video);
+      resolve();
+    };
+    video.load();
+  });
+}
+
+const mvPath = "/musics/" + song;
+preloadMV(mvPath).then(() => {
+  bgSource.src = mvPath;
+  bgVideo.load();
+});
 
 const lanes = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('#lanes .key-label');
@@ -171,6 +208,7 @@ const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
 
 const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
+const hitEffect = document.getElementById('hitEffect');
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -180,10 +218,18 @@ function showJudgment(text) {
   }, 500);
 }
 
+function triggerHitEffect() {
+  hitEffect.style.opacity = '1';
+  setTimeout(() => {
+    hitEffect.style.opacity = '0';
+  }, 80);
+}
+
 document.addEventListener('keydown', e => {
   const key = e.key.toLowerCase();
   if (keyMap[key] !== undefined) {
     const index = keyMap[key];
+    triggerHitEffect();
     const keyDiv = keyDivs[index];
     keyDiv.classList.add('key-press');
     setTimeout(() => keyDiv.classList.remove('key-press'), 100);
