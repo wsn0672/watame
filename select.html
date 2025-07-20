@@ -76,6 +76,11 @@
   <script>
     const bgVideo = document.getElementById('bgVideo');
     const bgSource = document.getElementById('bgSource');
+    // ページロード時に無音で1回だけ再生して自動再生権限を得る
+    window.addEventListener('load', () => {
+      bgVideo.muted = true;
+      bgVideo.play().catch(() => {});
+    });
 document.querySelectorAll('.song-list button').forEach(button => {
   button.addEventListener('mouseenter', () => {
     const mv = button.getAttribute('data-mv');
