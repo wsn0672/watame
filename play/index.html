@@ -251,8 +251,7 @@
 <div id="judgmentText"></div>
 
 <div id="resultOverlay" style="display:none;">
-  <div id="finalScoreTitle">Score</div>
-  <div id="finalScoreValue">0</div>
+  <div id="finalScoreTitle">Score<br>0</div>
 </div>
 
 <audio id="resultBGM" src="bgm.mp3" loop></audio>
@@ -268,7 +267,7 @@ const resultBGM = document.getElementById('resultBGM');
 
 const resultOverlay = document.getElementById('resultOverlay');
 const finalScoreTitle = document.getElementById('finalScoreTitle');
-const finalScoreValue = document.getElementById('finalScoreValue');
+// const finalScoreValue = document.getElementById('finalScoreValue');
 const lanesContainer = document.getElementById('lanes');
 let resultShown = false;
 let forcedEnd = false;
@@ -550,8 +549,7 @@ function showResult() {
 
     // 数字フェードイン（タイトルの後）
     setTimeout(() => {
-      finalScoreValue.textContent = score;
-      finalScoreValue.style.opacity = '1';
+      finalScoreTitle.innerHTML = `Score<br>${score}`;
     }, 1000);
   }, 10);
 }
