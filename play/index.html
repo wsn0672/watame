@@ -567,11 +567,12 @@ bgVideo.addEventListener('timeupdate', () => {
 function showResult() {
   document.getElementById('lanes').style.display = 'none';
   bgVideo.pause();
-  resultBGM.currentTime = 0;
-  resultBGM.play();
   const finalScoreLabel = document.getElementById('finalScoreLabel');
   const finalScore = document.getElementById('finalScore');
   const shareButton = document.getElementById('shareButton');
+  // Start result BGM before showing overlay
+  resultBGM.currentTime = 0;
+  resultBGM.play();
   resultOverlay.style.display = 'flex';
   setTimeout(() => resultOverlay.classList.add('show'), 10);
 
@@ -585,10 +586,10 @@ function showResult() {
   }, 1500);
 
   setTimeout(() => {
-    shareButton.style.display = 'block';
-    requestAnimationFrame(() => {
+    shareButton.style.display = 'inline-block';
+    setTimeout(() => {
       shareButton.classList.add('show');
-    });
+    }, 50);
   }, 2500);
 }
 
