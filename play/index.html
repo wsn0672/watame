@@ -158,13 +158,12 @@
     }
     #resultOverlay {
       position: fixed;
-      top: 0;  /* 画面上端に */
+      top: -100%;
       left: 0;
       width: 100vw;
       height: 100vh;
       background: rgba(0,0,0,0.9);
       display: flex;
-      flex-direction: column; /* 縦に積む */
       justify-content: center;
       align-items: center;
       color: white;
@@ -172,11 +171,10 @@
       font-weight: bold;
       z-index: 10000;
       transition: transform 2s ease;
-      transform: translateY(-100%); /* 初期は上に隠す */
     }
 
     #resultOverlay.show {
-      transform: translateY(0); /* 表示時は画面に */
+      transform: translateY(100%);
     }
 
     #finalScore {
@@ -188,22 +186,18 @@
       opacity: 1;
     }
 
-    #finalScoreTitle, #finalScoreValue, #shareButtons {
+    #finalScoreTitle, #finalScoreValue {
       color: white;
       font-weight: bold;
       font-family: monospace;
       text-align: center;
       user-select: none;
-      margin: 0;
-      padding: 0;
-      width: 100%;
     }
 
     #finalScoreTitle {
       font-size: 3rem;
       opacity: 0;
       transition: opacity 1s ease;
-      white-space: pre-line; /* 改行を有効にする */
     }
 
     #finalScoreValue {
@@ -213,27 +207,7 @@
       transition: opacity 1s ease;
     }
 
-    #shareButtons {
-      margin-top: 30px;
-      opacity: 0;
-      transition: opacity 1s ease;
-      width: auto;
-    }
-
-    #shareButtons button {
-      font-size: 1.5rem;
-      background-color: #1DA1F2;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    #shareButtons button:hover {
-      background-color: #0d8ddb;
-    }
+    /* #shareButtons and button styles removed */
   </style>
 </head>
 <body>
@@ -277,12 +251,8 @@
 <div id="judgmentText"></div>
 
 <div id="resultOverlay" style="display:none;">
-  <div id="finalScoreTitle">Score
-</div>
+  <div id="finalScoreTitle">Score</div>
   <div id="finalScoreValue">0</div>
-  <div id="shareButtons">
-    <button id="shareX">Xでシェアする</button>
-  </div>
 </div>
 
 <audio id="resultBGM" src="bgm.mp3" loop></audio>
@@ -299,7 +269,6 @@ const resultBGM = document.getElementById('resultBGM');
 const resultOverlay = document.getElementById('resultOverlay');
 const finalScoreTitle = document.getElementById('finalScoreTitle');
 const finalScoreValue = document.getElementById('finalScoreValue');
-const shareButtons = document.getElementById('shareButtons');
 const lanesContainer = document.getElementById('lanes');
 let resultShown = false;
 let forcedEnd = false;
@@ -584,20 +553,10 @@ function showResult() {
       finalScoreValue.textContent = score;
       finalScoreValue.style.opacity = '1';
     }, 1000);
-
-    // シェアボタンフェードイン（数字の後）
-    setTimeout(() => {
-      shareButtons.style.opacity = '1';
-    }, 2500);
   }, 10);
 }
 
-document.getElementById('shareX').addEventListener('click', () => {
-  const url = encodeURIComponent(location.href);
-  const text = encodeURIComponent(`このゲームで${score}点とったよ！みんなもやってみて！`);
-  const shareUrl = `https://x.com/intent/tweet?url=${url}&text=${text}`;
-  window.open(shareUrl, '_blank', 'noopener');
-});
+
 
 document.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'r') {
