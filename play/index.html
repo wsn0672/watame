@@ -35,39 +35,37 @@
     }
     #lanes {
       position: fixed;
-      bottom: 50px;
+      top: 0;
+      bottom: 0;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       gap: 20px;
+      height: 100vh; /* レーンを画面いっぱいの高さに */
     }
     .lane {
       width: 80px;
-      height: 400px;
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid white;
       position: relative;
-      perspective: 800px; /* 3D遠近感のため追加 */
-      overflow: visible; /* ノーツをレーン外にも表示 */
+      overflow: hidden;
+      height: 100%; /* レーンの高さを親に合わせる */
     }
     .note {
       position: absolute;
-      bottom: 0; /* 下端から始める */
+      top: -30px;
       left: 0;
       width: 100%;
       height: 30px;
       background: #ff90b3;
-      transform-style: preserve-3d; /* 3D変形を有効化 */
-      transform-origin: center bottom; /* 回転軸を底部に */
-      backface-visibility: hidden; /* 裏面非表示 */
-      will-change: transform;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
 
 <!-- 背景動画 -->
-<video id="bgVideo" autoplay muted loop playsinline>
+<video id="bgVideo" autoplay loop playsinline controls>
   <source id="bgSource" src="" type="video/mp4" />
 </video>
 
@@ -81,7 +79,8 @@
 
 <script>
 const params = new URLSearchParams(location.search);
-const song = params.get('song');
+const song = params.get('song') || "default.mp4";
+const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
@@ -89,38 +88,39 @@ bgSource.src = "/musics/" + song;
 bgVideo.load();
 bgVideo.play();
 
-// 簡易譜面例（後でJSON読み込みに置き換える）
-const chart = [
-  { time: 1000, lane: 0 },
-  { time: 1500, lane: 1 },
-  { time: 2000, lane: 2 },
-  { time: 2500, lane: 3 },
-];
-
-const startTime = performance.now();
 const lanes = document.querySelectorAll('.lane');
+let chart = [];
+let startTime = 0;
 
-function spawnNote(laneIndex, delay) {
+// 譜面JSONを曲名に基づいて取得
+fetch("/notes/" + chartFile)
+  .then(res => {
+    if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
+    return res.json();
+  })
+  .then(data => {
+    chart = data;
+    startTime = performance.now();
+    gameLoop();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("譜面ファイルが見つかりませんでした: " + chartFile);
+  });
+
+// ゲームループ・ノーツ生成は変更なし
+function spawnNote(laneIndex) {
   const note = document.createElement('div');
   note.classList.add('note');
   lanes[laneIndex].appendChild(note);
 
-  const laneHeight = 400;
-  const start = performance.now();
-
+  const speed = 0.4; // ピクセル毎ミリ秒
   function animate() {
-    const now = performance.now();
-    const elapsed = now - start;
-    const progress = elapsed / delay;
+    const elapsed = performance.now() - startTime;
+    const pos = elapsed * speed;
+    note.style.top = pos + 'px';
 
-    if (progress < 1) {
-      // 奥から手前に降りるイメージでZ軸縮小しながら移動
-      const posY = laneHeight * progress; // 下から上への移動を逆にするので bottomスタイルと合わせる
-      const scaleZ = 1 - progress * 0.7; // 奥から手前に来るにつれて拡大
-      const translateZ = -300 * (1 - progress); // 奥から手前へZ移動
-
-      note.style.bottom = posY + 'px';
-      note.style.transform = `translateZ(${translateZ}px) scaleZ(${scaleZ})`;
+    if (pos < lanes[laneIndex].offsetHeight) {
       requestAnimationFrame(animate);
     } else {
       note.remove();
@@ -134,7 +134,7 @@ function gameLoop() {
 
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time <= now) {
-      spawnNote(chart[i].lane, 2000);
+      spawnNote(chart[i].lane);
       chart.splice(i, 1);
       i--;
     }
@@ -142,8 +142,6 @@ function gameLoop() {
 
   requestAnimationFrame(gameLoop);
 }
-
-gameLoop();
 </script>
 
 </body>
