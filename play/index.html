@@ -606,7 +606,7 @@ document.addEventListener('keydown', e => {
 
 document.getElementById('shareXButton').addEventListener('click', () => {
   const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓`);
-  const shareUrl = `https://x.com/intent/tweet?text=${text}%20https://わためぇ自由研究.wsn0672.org`;
+  const shareUrl = `https://x.com/intent/tweet?text=${text}\nhttps://わためぇ自由研究.wsn0672.org`;
   window.open(shareUrl, '_blank');
 });
 
