@@ -117,7 +117,7 @@
 <body>
 
 <!-- 背景動画 -->
-<video id="bgVideo" autoplay loop playsinline>
+<video id="bgVideo" loop playsinline>
   <source id="bgSource" src="" type="video/mp4" />
 </video>
 
@@ -219,6 +219,7 @@ fetch("/notes/" + chartFile)
     chart = data;
     setTimeout(() => {
       loadingScreen.style.display = 'none';
+      bgVideo.currentTime = 0;
       bgVideo.play();
       startTime = performance.now();
       gameLoop();
