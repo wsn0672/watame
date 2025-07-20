@@ -53,12 +53,9 @@ playBtn.onclick = () => {
 
 document.addEventListener('keydown', (e) => {
   if (!playing) return;
-  const key = e.key.toLowerCase();
-  if (keyToLane.hasOwnProperty(key)) {
-    const time = performance.now() - startTime;
-    notes.push({ time: Math.floor(time) });
-    notesDiv.textContent = JSON.stringify(notes, null, 2);
-  }
+  const time = performance.now() - startTime;
+  notes.push({ time: Math.floor(time) });
+  notesDiv.textContent = JSON.stringify(notes, null, 2);
 });
 
 exportBtn.onclick = () => {
