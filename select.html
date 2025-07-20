@@ -179,12 +179,28 @@
       bgVideo.play().catch(() => {});
     });
 const pinkOverlay = document.getElementById('pinkOverlay');
-let hoverActive = false;
+
+// 動画の再生状態でpinkOverlayを制御
+function updatePinkOverlay() {
+  if (bgVideo.paused || bgVideo.readyState < 3) {
+    // 動画が再生されていない or 読み込み中はピンク表示
+    pinkOverlay.style.opacity = '1';
+  } else {
+    pinkOverlay.style.opacity = '0';
+  }
+}
+
+// ページロード時と動画状態変化時にチェック
+bgVideo.addEventListener('play', updatePinkOverlay);
+bgVideo.addEventListener('pause', updatePinkOverlay);
+bgVideo.addEventListener('ended', updatePinkOverlay);
+bgVideo.addEventListener('loadeddata', updatePinkOverlay);
+
+// 初期チェック
+updatePinkOverlay();
 
 document.querySelectorAll('.song-list button').forEach(button => {
   button.addEventListener('mouseenter', () => {
-    hoverActive = true;
-    pinkOverlay.style.opacity = '0';
     const mv = button.getAttribute('data-mv');
     const chorus = parseFloat(button.getAttribute('data-chorus')) || 0;
     if (mv && videoBlobs[mv]) {
@@ -203,14 +219,7 @@ document.querySelectorAll('.song-list button').forEach(button => {
   });
 
   button.addEventListener('mouseleave', () => {
-    hoverActive = false;
-    setTimeout(() => {
-      if (!hoverActive) {
-        pinkOverlay.style.opacity = '1';
-      }
-    }, 100);
     bgVideo.pause();
-    bgVideo.style.opacity = 0;
   });
 
   button.addEventListener('click', () => {
