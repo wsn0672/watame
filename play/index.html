@@ -429,14 +429,16 @@ function spawnNote(noteData) {
       if (pos < laneHeight) {
         requestAnimationFrame(animate);
       } else {
-        if (note.classList.contains('double')) {
-          score -= 2000;
-        } else {
-          score -= 1000;
+        if (document.body.contains(note)) {
+          if (note.classList.contains('double')) {
+            score -= 2000;
+          } else {
+            score -= 1000;
+          }
+          scoreDisplay.textContent = score;
+          showJudgment("MISS");
+          note.remove();
         }
-        scoreDisplay.textContent = score;
-        showJudgment("MISS");
-        note.remove();
       }
     }
     animate();
@@ -450,14 +452,16 @@ function spawnNote(noteData) {
       if (pos < laneHeight) {
         requestAnimationFrame(animate);
       } else {
-        if (note.classList.contains('double')) {
-          score -= 2000;
-        } else {
-          score -= 1000;
+        if (document.body.contains(note)) {
+          if (note.classList.contains('double')) {
+            score -= 2000;
+          } else {
+            score -= 1000;
+          }
+          scoreDisplay.textContent = score;
+          showJudgment("MISS");
+          note.remove();
         }
-        scoreDisplay.textContent = score;
-        showJudgment("MISS");
-        note.remove();
       }
     }
     animate();
