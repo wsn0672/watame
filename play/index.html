@@ -268,7 +268,7 @@ document.addEventListener('keydown', e => {
     const notes = lane.querySelectorAll('.note');
 
     if (notes.length === 0) {
-      score -= 100;
+      score -= 1000;
       scoreDisplay.textContent = score;
       showJudgment("MISS");
       return;
@@ -293,7 +293,7 @@ document.addEventListener('keydown', e => {
     });
 
     if (!closestNote) {
-      score -= 100;
+      score -= 1000;
       scoreDisplay.textContent = score;
       showJudgment("MISS");
       return;
@@ -305,7 +305,7 @@ document.addEventListener('keydown', e => {
     if (closestDistance < 100) {  // 判定を甘く (±1個分ぐらい)
       const baseScore = 1000;
       const msDiff = Math.abs(Math.round(timeDiff));
-      let noteScore = baseScore - (msDiff * 5);
+      let noteScore = baseScore - (msDiff * 10);
 
       if (closestNote.classList.contains('double')) {
         noteScore *= 2;
@@ -317,7 +317,7 @@ document.addEventListener('keydown', e => {
 
       closestNote.remove();
     } else {
-      score -= 100;
+      score -= 1000;
       scoreDisplay.textContent = score;
       showJudgment("MISS");
     }
@@ -429,6 +429,13 @@ function spawnNote(noteData) {
       if (pos < laneHeight) {
         requestAnimationFrame(animate);
       } else {
+        if (note.classList.contains('double')) {
+          score -= 2000;
+        } else {
+          score -= 1000;
+        }
+        scoreDisplay.textContent = score;
+        showJudgment("MISS");
         note.remove();
       }
     }
@@ -443,6 +450,13 @@ function spawnNote(noteData) {
       if (pos < laneHeight) {
         requestAnimationFrame(animate);
       } else {
+        if (note.classList.contains('double')) {
+          score -= 2000;
+        } else {
+          score -= 1000;
+        }
+        scoreDisplay.textContent = score;
+        showJudgment("MISS");
         note.remove();
       }
     }
