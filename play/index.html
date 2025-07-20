@@ -136,7 +136,15 @@ fetch("/notes/" + chartFile)
 // ノーツ生成
 function spawnNote(noteData) {
   let laneIndex = noteData.lane;
-  const noteType = noteData.type || "normal";
+
+  // 毎回ランダムに色を決定
+  const rand = Math.random();
+  let noteType = "normal";
+  if (rand < 0.2) {
+    noteType = "slide";
+  } else if (rand < 0.7) { // 0.2 + 0.5
+    noteType = "double";
+  }
 
   const note = document.createElement('div');
   note.classList.add('note', noteType);
@@ -146,28 +154,54 @@ function spawnNote(noteData) {
   const speed = laneHeight / 2000; // 2秒で到達
 
   let start = performance.now();
-  function animate() {
-    let now = performance.now();
-    let elapsed = now - start;
-    let pos = elapsed * speed;
-    note.style.top = pos + 'px';
+  let slideDone = false;
 
-    if (noteType === "slide" && Math.random() < 0.01) { // 簡易的なレーンスライド
-      const shift = Math.random() < 0.5 ? -1 : 1;
-      const newLane = Math.max(0, Math.min(3, laneIndex + shift));
-      if (newLane !== laneIndex) {
-        lanes[newLane].appendChild(note);
-        laneIndex = newLane;
+  if (noteType === "slide") {
+    const shift = Math.random() < 0.5 ? -1 : 1;
+    const targetLane = Math.max(0, Math.min(3, laneIndex + shift));
+
+    function animateSlideTransition(noteElement) {
+      noteElement.style.transition = "left 0.3s ease";
+      noteElement.style.left = (shift > 0 ? 100 : -100) + "%";
+    }
+
+    function animate() {
+      let now = performance.now();
+      let elapsed = now - start;
+      let pos = elapsed * speed;
+      note.style.top = pos + 'px';
+
+      // レーン移動（降りる途中で一度だけ）
+      if (!slideDone && pos > laneHeight / 2) {
+        animateSlideTransition(note);
+        lanes[targetLane].appendChild(note);
+        note.style.left = "0";
+        laneIndex = targetLane;
+        slideDone = true;
+      }
+
+      if (pos < laneHeight) {
+        requestAnimationFrame(animate);
+      } else {
+        note.remove();
       }
     }
+    animate();
+  } else {
+    function animate() {
+      let now = performance.now();
+      let elapsed = now - start;
+      let pos = elapsed * speed;
+      note.style.top = pos + 'px';
 
-    if (pos < laneHeight) {
-      requestAnimationFrame(animate);
-    } else {
-      note.remove();
+      if (pos < laneHeight) {
+        requestAnimationFrame(animate);
+      } else {
+        note.remove();
+      }
     }
+    animate();
   }
-  animate();
 }
 
 function gameLoop() {
