@@ -49,7 +49,7 @@
       border-bottom: 4px solid red;
       position: relative;
       overflow: hidden;
-      height: calc(100% - 200px); /* 下に少し余白 */
+      height: calc(100% - 250px); /* レーンをさらに縦に伸ばす */
     }
     .key-label {
       position: absolute;
@@ -132,15 +132,13 @@ const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
 
 const judgmentText = document.getElementById('judgmentText');
 
-function showJudgment(result) {
-  judgmentText.textContent = result;
+function showJudgment(text) {
+  judgmentText.textContent = text;
   judgmentText.style.opacity = '1';
   setTimeout(() => {
     judgmentText.style.opacity = '0';
   }, 500);
 }
-
-const approachTime = 2000; // ノーツ出現から赤ライン到達までの時間
 
 document.addEventListener('keydown', e => {
   const key = e.key.toLowerCase();
@@ -150,25 +148,45 @@ document.addEventListener('keydown', e => {
     keyDiv.classList.add('key-press');
     setTimeout(() => keyDiv.classList.remove('key-press'), 100);
 
-    // 判定（簡易判定：現在降下中のノーツとの距離チェック）
     const lane = lanes[index];
     const notes = lane.querySelectorAll('.note');
+
+    if (notes.length === 0) {
+      showJudgment("MISS");
+      return;
+    }
+
+    let closestNote = null;
+    let closestDistance = Infinity;
+    let closestNoteTime = 0;
+
+    const laneHeight = lane.offsetHeight;
+    const targetPos = laneHeight - 50;
+
     notes.forEach(note => {
       const noteTop = parseFloat(note.style.top);
-      const laneHeight = lane.offsetHeight;
-      const targetPos = laneHeight - 50; // 判定ライン付近
       const distance = Math.abs(noteTop - targetPos);
-      if (distance < 50) {  // 判定範囲
-        if (distance < 15) {
-          showJudgment("GREAT");
-        } else if (distance < 30) {
-          showJudgment("GOOD");
-        } else {
-          showJudgment("MISS");
-        }
-        note.remove();
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestNote = note;
+        closestNoteTime = parseFloat(note.dataset.time);
       }
     });
+
+    if (!closestNote) {
+      showJudgment("MISS");
+      return;
+    }
+
+    const now = performance.now() - startTime;
+    const timeDiff = now - closestNoteTime;
+
+    if (closestDistance < 50) {
+      showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
+      closestNote.remove();
+    } else {
+      showJudgment("MISS");
+    }
   }
 });
 
@@ -207,10 +225,15 @@ function spawnNote(noteData) {
 
   const note = document.createElement('div');
   note.classList.add('note', noteType);
+
+  // 譜面のタイムスタンプをdatasetに保存
+  note.dataset.time = noteData.time;
+
   lanes[laneIndex].appendChild(note);
 
   const laneHeight = lanes[laneIndex].offsetHeight;
-  const speed = laneHeight / approachTime; // 2秒で到達
+  const approachTime = 1000; // 1秒で到達
+  const speed = laneHeight / approachTime;
 
   let start = performance.now();
   let slideDone = false;
@@ -230,7 +253,6 @@ function spawnNote(noteData) {
       let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
-      // レーン移動（降りる途中で一度だけ）
       if (!slideDone && pos > laneHeight / 2) {
         animateSlideTransition(note);
         lanes[targetLane].appendChild(note);
@@ -267,7 +289,7 @@ function gameLoop() {
   const now = performance.now() - startTime;
 
   for (let i = 0; i < chart.length; i++) {
-    if (chart[i].time - approachTime <= now) {
+    if (chart[i].time <= now) {
       spawnNote(chart[i]);
       chart.splice(i, 1);
       i--;
