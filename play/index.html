@@ -415,7 +415,7 @@ fetch("/notes/" + chartFile)
     chart = data;
     let countdown = 3;
     loadingScreen.textContent = countdown;
-    scoreDisplay.style.display = 'none';
+    scoreDisplay.style.display = 'none'; // Confirmed: score is hidden during countdown
 
     const countdownInterval = setInterval(() => {
       countdown--;
@@ -572,6 +572,7 @@ bgVideo.addEventListener('timeupdate', () => {
 });
 
 function showResult() {
+  // Hide the lanes when showing the results
   document.getElementById('lanes').style.display = 'none';
   bgVideo.pause();
   const finalScoreLabel = document.getElementById('finalScoreLabel');
@@ -580,22 +581,33 @@ function showResult() {
   // Start result BGM just before overlay slides in
   resultBGM.currentTime = 0;
   resultBGM.play();
+
+  // Prepare for sequential reveal
   resultOverlay.style.display = 'flex';
   setTimeout(() => resultOverlay.classList.add('show'), 10);
 
-  // finalScoreLabel opacity change is no longer needed, always visible
+  // Reset states for sequential reveal
+  finalScore.style.opacity = '0';
+  finalScore.textContent = '';
+  finalScoreLabel.style.opacity = '0';
+  shareButton.style.opacity = '0';
+  shareButton.style.display = 'none';
+
+  setTimeout(() => {
+    finalScoreLabel.style.opacity = '1';
+  }, 1000);
 
   setTimeout(() => {
     finalScore.textContent = score;
     finalScore.style.opacity = '1';
-  }, 2500);
+  }, 2000);
 
   setTimeout(() => {
     shareButton.style.display = 'block';
     requestAnimationFrame(() => {
       shareButton.classList.add('show');
     });
-  }, 4000);
+  }, 3000);
 }
 
 document.addEventListener('keydown', e => {
