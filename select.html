@@ -118,12 +118,16 @@
       }
     }
 
+    // 動画のプリロード(fetchを利用)
     preloadVideos.forEach(src => {
-      const video = document.createElement('video');
-      video.src = src;
-      video.preload = "auto";
-      video.onloadeddata = checkPreloadComplete;
-      video.load();
+      fetch(src, { cache: "force-cache" })
+        .then(() => {
+          checkPreloadComplete();
+        })
+        .catch(() => {
+          // エラー時もカウントして進行
+          checkPreloadComplete();
+        });
     });
 
     // ページロード時に無音で1回だけ再生して自動再生権限を得る

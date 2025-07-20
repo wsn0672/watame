@@ -53,13 +53,6 @@
       flex-direction: column;
       justify-content: flex-end;
     }
-    .lane::after {
-      content: "";
-      display: block;
-      height: 4px;
-      background: red;
-      margin-bottom: 80px; /* 赤線の下に余白 */
-    }
     .key-label {
       position: absolute;
       bottom: 10px;
@@ -68,6 +61,13 @@
       font-size: 2rem;
       color: white;
       font-family: monospace;
+    }
+    .judgeline {
+      height: 4px;
+      background: red;
+      margin-bottom: 80px; /* 赤線の下に余白 */
+      position: relative;
+      z-index: 1;
     }
     .note {
       position: absolute;
@@ -135,10 +135,22 @@
 
 <!-- レーン -->
 <div id="lanes">
-  <div class="lane" data-lane="0"><div class="key-label">D</div></div>
-  <div class="lane" data-lane="1"><div class="key-label">F</div></div>
-  <div class="lane" data-lane="2"><div class="key-label">J</div></div>
-  <div class="lane" data-lane="3"><div class="key-label">K</div></div>
+  <div class="lane" data-lane="0">
+    <div class="key-label">D</div>
+    <div class="judgeline"></div>
+  </div>
+  <div class="lane" data-lane="1">
+    <div class="key-label">F</div>
+    <div class="judgeline"></div>
+  </div>
+  <div class="lane" data-lane="2">
+    <div class="key-label">J</div>
+    <div class="judgeline"></div>
+  </div>
+  <div class="lane" data-lane="3">
+    <div class="key-label">K</div>
+    <div class="judgeline"></div>
+  </div>
 </div>
 
 <div id="judgmentText"></div>
@@ -189,7 +201,8 @@ document.addEventListener('keydown', e => {
     let closestNoteTime = 0;
 
     const laneHeight = lane.offsetHeight;
-    const targetPos = laneHeight - 50;
+    const judgmentLine = lane.querySelector('.judgeline');
+    const targetPos = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
     notes.forEach(note => {
       const noteTop = parseFloat(note.style.top);
