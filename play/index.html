@@ -232,9 +232,10 @@
 <div id="scoreDisplay">0</div>
 
 <div id="resultOverlay">
-  <div id="finalScore"></div>
-  <div id="shareButtons">
-    <button id="shareX">Share</button>
+  <div id="finalScoreTitle" style="opacity:0; transition: opacity 1s ease;">Score</div>
+  <div id="finalScoreValue" style="opacity:0; transition: opacity 1s ease;">0</div>
+  <div id="shareButtons" style="opacity:0; transition: opacity 1s ease; margin-top: 30px;">
+    <button id="shareX">Xでシェアする</button>
   </div>
 </div>
 
@@ -529,10 +530,21 @@ function showResult() {
   resultOverlay.style.display = 'flex';
   setTimeout(() => {
     resultOverlay.classList.add('show');
+    const title = document.getElementById('finalScoreTitle');
+    const value = document.getElementById('finalScoreValue');
     const share = document.getElementById('shareButtons');
-    share.style.opacity = '1';
+
+    title.style.opacity = '1';
+
+    setTimeout(() => {
+      value.textContent = score;
+      value.style.opacity = '1';
+    }, 1000);
+
+    setTimeout(() => {
+      share.style.opacity = '1';
+    }, 2500);
   }, 10);
-  finalScore.textContent = `スコア: ${score}`;
   bgVideo.pause();
   resultBGM.currentTime = 0;
   resultBGM.play();
