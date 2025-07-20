@@ -70,6 +70,16 @@
       position: relative;
       z-index: 1;
     }
+    .lane .hitEffect {
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      background: #ff90b3;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      transition: opacity 0.1s ease;
+    }
     .note {
       position: absolute;
       top: -30px;
@@ -123,16 +133,16 @@
       z-index: 999;
     }
     #hitEffect {
-      position: fixed;
-      width: 60vw;
+      position: absolute;
+      width: 100%;
       height: 4px;
       background: #ff90b3;
-      top: 85vh;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      top: 0;
+      transform: none;
       opacity: 0;
       transition: opacity 0.1s ease;
-      z-index: 5;
+      z-index: 10;
     }
   </style>
 </head>
@@ -150,24 +160,31 @@
 <div id="lanes">
   <div class="lane" data-lane="0">
     <div class="key-label">D</div>
-    <div class="judgeline"></div>
+    <div class="judgeline">
+      <div class="hitEffect"></div>
+    </div>
   </div>
   <div class="lane" data-lane="1">
     <div class="key-label">F</div>
-    <div class="judgeline"></div>
+    <div class="judgeline">
+      <div class="hitEffect"></div>
+    </div>
   </div>
   <div class="lane" data-lane="2">
     <div class="key-label">J</div>
-    <div class="judgeline"></div>
+    <div class="judgeline">
+      <div class="hitEffect"></div>
+    </div>
   </div>
   <div class="lane" data-lane="3">
     <div class="key-label">K</div>
-    <div class="judgeline"></div>
+    <div class="judgeline">
+      <div class="hitEffect"></div>
+    </div>
   </div>
 </div>
 
 <div id="judgmentText"></div>
-<div id="hitEffect"></div>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -208,7 +225,7 @@ const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
 
 const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
-const hitEffect = document.getElementById('hitEffect');
+const hitEffects = document.querySelectorAll('.hitEffect');
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -218,10 +235,11 @@ function showJudgment(text) {
   }, 500);
 }
 
-function triggerHitEffect() {
-  hitEffect.style.opacity = '1';
+function triggerHitEffect(laneIndex) {
+  const effect = hitEffects[laneIndex];
+  effect.style.opacity = '1';
   setTimeout(() => {
-    hitEffect.style.opacity = '0';
+    effect.style.opacity = '0';
   }, 80);
 }
 
@@ -229,7 +247,7 @@ document.addEventListener('keydown', e => {
   const key = e.key.toLowerCase();
   if (keyMap[key] !== undefined) {
     const index = keyMap[key];
-    triggerHitEffect();
+    triggerHitEffect(index);
     const keyDiv = keyDivs[index];
     keyDiv.classList.add('key-press');
     setTimeout(() => keyDiv.classList.remove('key-press'), 100);
