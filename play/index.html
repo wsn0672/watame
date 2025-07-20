@@ -582,7 +582,7 @@ document.addEventListener('keydown', e => {
 
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
-  const text = encodeURIComponent(`WD!!で ${score}点出した！\nわためぇ曲で遊べる音ゲー →`);
+  const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓`);
   const shareUrl = `https://x.com/intent/tweet?text=${text}%20${url}`;
   window.open(shareUrl, '_blank');
 });
