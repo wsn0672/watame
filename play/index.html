@@ -360,12 +360,19 @@ function spawnNote(noteData) {
       let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
-      if (!slideDone && pos > laneHeight / 2) {
-        animateSlideTransition(note);
-        lanes[targetLane].appendChild(note);
-        note.style.transform = "translateX(0)";
-        laneIndex = targetLane;
-        slideDone = true;
+      if (!slideDone && pos > laneHeight / 3) { // 1/3あたりに移動開始
+        // 横スムーズ移動用にleftの数値とトランジション設定
+        note.style.transition = "left 0.5s ease, transform 0.5s ease";
+        note.style.left = (shift * 100) + "%";
+
+        setTimeout(() => {
+          lanes[targetLane].appendChild(note);
+          note.style.transition = "transform 0.3s ease";
+          note.style.left = "0";
+          note.style.transform = "translateX(0)";
+          laneIndex = targetLane;
+          slideDone = true;
+        }, 10);
       }
 
       if (pos < laneHeight) {
