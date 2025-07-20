@@ -312,6 +312,7 @@
 <audio id="resultBGM" src="bgm.mp3" loop></audio>
 
 <script>
+const approachTime = 1000; // ノーツが判定ラインに到達するまでの時間(ms)
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
@@ -439,8 +440,8 @@ fetch("/notes/" + chartFile)
     let countdown = 3;
     loadingScreen.textContent = countdown;
 
-    startTime = performance.now();
-    gameLoop(); // カウントダウンの時点でゲームループ開始
+    startTime = performance.now() - approachTime; // ここでアプローチタイムだけ先行スタート
+    gameLoop(); // ゲームループ開始
 
     const countdownInterval = setInterval(() => {
       countdown--;
@@ -483,7 +484,7 @@ function spawnNote(noteData) {
 
   const laneHeight = lanes[laneIndex].offsetHeight;
 
-  const approachTime = 1000; // 1秒で判定エリアに到達
+  // const approachTime = 1000; // 1秒で判定エリアに到達（グローバル変数を使用）
   const speed = targetY / approachTime;
 
   // 譜面のタイムスタンプをdatasetに保存
@@ -567,7 +568,7 @@ function gameLoop() {
   if (forcedEnd) return;
   const now = performance.now() - startTime;
   for (let i = 0; i < chart.length; i++) {
-    if (chart[i].time - 1000 <= now) {
+    if (chart[i].time - approachTime <= now) {
       spawnNote(chart[i]);
       chart.splice(i, 1);
       i--;
