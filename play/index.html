@@ -204,7 +204,6 @@
 <video id="bgVideo" loop playsinline>
   <source id="bgSource" src="" type="video/mp4" />
 </video>
-<audio id="resultBGM" src="/musics/bgm.mp3" loop></audio>
 
 <!-- ローディング画面 -->
 <div id="loadingScreen">3</div>
@@ -244,6 +243,8 @@
   <div id="finalScore"></div>
 </div>
 
+<audio id="resultBGM" src="/musics/bgm.mp3" loop></audio>
+
 <script>
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
@@ -252,7 +253,7 @@ const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
 const resultBGM = document.getElementById('resultBGM');
-let gameLoopHandle;
+let forcedEnd = false;
 
 // Get cached MV URL from sessionStorage
 const mvUrl = sessionStorage.getItem('mvUrl');
@@ -361,13 +362,6 @@ document.addEventListener('keydown', e => {
       scoreDisplay.textContent = score;
       showJudgment("MISS");
     }
-  }
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key.toLowerCase() === 'r' && !resultShown) {
-    resultShown = true;
-    showResult();
   }
 });
 
@@ -517,8 +511,8 @@ function spawnNote(noteData) {
 }
 
 function gameLoop() {
+  if (forcedEnd) return;
   const now = performance.now() - startTime;
-
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time - 1000 <= now) {
       spawnNote(chart[i]);
@@ -526,8 +520,7 @@ function gameLoop() {
       i--;
     }
   }
-
-  gameLoopHandle = requestAnimationFrame(gameLoop);
+  requestAnimationFrame(gameLoop);
 }
 
 bgVideo.addEventListener('timeupdate', () => {
@@ -538,28 +531,21 @@ bgVideo.addEventListener('timeupdate', () => {
 });
 
 function showResult() {
-  bgVideo.pause();
-  resultBGM.play();
-  cancelAnimationFrame(gameLoopHandle);
-
   resultOverlay.style.display = 'flex';
   setTimeout(() => resultOverlay.classList.add('show'), 10);
   finalScore.textContent = `スコア: ${score}`;
   bgVideo.pause();
-
+  resultBGM.currentTime = 0;
   resultBGM.play();
-
-  // --- Share button fade-in update example ---
-  // If you have a shareButton, apply the improved fade-in logic as requested.
-  /*
-  setTimeout(() => {
-    shareButton.style.display = 'block';
-    requestAnimationFrame(() => {
-      shareButton.classList.add('show');
-    });
-  }, 2000);
-  */
 }
+
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === 'r') {
+    forcedEnd = true;
+    bgVideo.pause();
+    showResult();
+  }
+});
 </script>
 
 </body>
