@@ -9,7 +9,15 @@
 
 <h1>譜面エディタ</h1>
 
-<audio id="audio" src="/musics/your_song.mp3"></audio>
+<select id="songSelect">
+  <option value="your_song.mp4">Your Song</option>
+  <option value="mysong.mp4">My Song</option>
+  <option value="aimaishokora-te.mp4">愛昧ショコラーテ</option>
+  <option value="watameister.mp4">わためマイスター</option>
+  <option value="biri.mp4">ビリ</option>
+</select>
+
+<video id="audio" src="/musics/your_song.mp4"></audio>
 <button id="playBtn">再生/停止</button>
 <button id="exportBtn">譜面をJSONで保存</button>
 
@@ -19,6 +27,7 @@
 
 <script>
 const audio = document.getElementById('audio');
+const songSelect = document.getElementById('songSelect');
 const playBtn = document.getElementById('playBtn');
 const exportBtn = document.getElementById('exportBtn');
 const notesDiv = document.getElementById('notes');
@@ -61,6 +70,10 @@ exportBtn.onclick = () => {
   a.download = 'notes.json';
   a.click();
   URL.revokeObjectURL(url);
+};
+
+songSelect.onchange = () => {
+  audio.src = '/musics/' + songSelect.value;
 };
 </script>
 </body>
