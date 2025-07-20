@@ -171,12 +171,13 @@
     }
     #resultOverlay {
       position: fixed;
-      top: -100%;
+      top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
       background: rgba(0,0,0,0.9);
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       color: white;
@@ -226,7 +227,8 @@
       display: flex;
       justify-content: center;
       gap: 20px;
-      margin-top: 50px;
+      margin-top: auto;
+      margin-bottom: 80px;
     }
 
     #resultButtons button {
@@ -286,6 +288,7 @@
 
 <div id="resultOverlay" style="display:none;">
   <div id="finalScoreTitle">Score<br>0</div>
+  <!-- move buttons to bottom -->
   <div id="resultButtons">
     <button id="shareXButton">Xで結果をシェア</button>
     <button id="replayButton">もう一度プレイ</button>
@@ -605,8 +608,9 @@ document.addEventListener('keydown', e => {
 });
 
 document.getElementById('shareXButton').addEventListener('click', () => {
+  const url = encodeURIComponent(location.href);
   const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓`);
-  const shareUrl = `https://x.com/intent/tweet?text=${text}\nhttps://わためぇ自由研究.wsn0672.org`;
+  const shareUrl = `https://x.com/intent/tweet?text=${text}%20${url}`;
   window.open(shareUrl, '_blank');
 });
 
