@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <title>わためぇ自由研究！</title>
+    <link rel="icon" href="/favicon.png" type="image/png" />
+        <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB78MEGS2W"></script>
+    <meta name="description" content="wsn0672の自家製Webサーバー" />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- リセットCSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css" />
+
+    <!-- 自作CSS -->
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      body {
+        background: linear-gradient(145deg, #e6fff2, #ffffff);
+        animation: fadeInBody 1s ease-in;
+      }
+
+      header {
+        animation: slideDown 0.8s ease-out;
+      }
+
+      h1#dynamic-title {
+        font-size: 3.5rem;
+        margin: 0;
+        color: #00cc70;
+        text-shadow: 0 0 3px #00cc70;
+      }
+      .button.subtle {
+        font-size: 0.8rem;
+        background-color: #e0e0e0;
+        color: #333;
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+
+      .button.subtle:hover {
+        background-color: #d0d0d0;
+        color: #111;
+      }
+
+      .reload {
+        text-align: center;
+        margin: 1.5rem 0;
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      .button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        background-color: #00a762;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 167, 98, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 167, 98, 0.4);
+      }
+
+      @keyframes fadeInBody {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideDown {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-HB78MEGS2W");
+
+        // タイピング風タイトル
+document.addEventListener("DOMContentLoaded", () => {
+    const titleText = "わためぇ自由研究2025";
+    const titleElement = document.getElementById("dynamic-title");
+    let index = 0;
+
+    function typeWriter() {
+        if (index < titleText.length) {
+            titleElement.textContent += titleText.charAt(index);
+            index++;
+            setTimeout(typeWriter, 100);
+        }
+    }
+
+    typeWriter();
+
+    // クライアント情報表示
+    document.getElementById('browser').textContent = navigator.userAgent;
+
+    fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('ip').textContent = data.ip;
+        })
+        .catch(() => {
+            document.getElementById('ip').textContent = '取得失敗';
+        });
+});
+    </script>
+</head>
+
+<body>
+  <header
+    style="
+      padding: 2rem;
+      text-align: center;
+      color: #147d4c7c;
+      font-family: 'Noto Sans JP', sans-serif;
+    "
+  >
+    <h1 id="dynamic-title" style="font-size: 3.5rem; margin: 0; text-shadow: 0 0 10px #00ff88">
+    </h1>
+    <p
+      style="
+        margin-top: 1rem;
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      "
+    >
+      ようこそ、wsn0672のWebサイトへ<br>
+    </p>
+  </header>
+  <main
+    style="
+      padding: 2rem;
+      max-width: 900px;
+      margin: 2rem auto;
+      color: #006c3aa7;
+      font-family: 'Noto Sans JP', sans-serif;
+    ">
+        </div>
+        <div class="reload">
+            <a href="/testjs/" class="button">作品を体験</a>
+        </div>
+        <div class="reload">
+            <a href="/status/" class="button">サーバーステータス</a>
+        </div>
+        <div class="reload">
+            <a href="/login/" class="button">テストページ</a>
+        </div>
+        
+
+<section style="margin-bottom: 3rem">
+  <h2 style="font-size: 2rem; border-left: 5px solid #004f2a; padding-left: 0.5rem; margin-bottom: 1rem;">
+    最新の投稿
+  </h2>
+  <div style="display: flex; flex-direction: column; gap: 1rem;">
+    <a href="https://qiita.com/wsn0672/items/718d246bf4f78cc69855" target="_blank" style="display: block; border: 1px solid #ccc; border-radius: 8px; padding: 1rem; text-decoration: none; color: #004f2a; background: #f9f9f9;">
+      <strong style="font-size: 1.2rem;">ラズパイでTurboWarp用クラウド変数サーバーを建てる</strong>
+      <p style="margin: 0.5rem 0 0; color: #555;">Scratchのクラウド変数をラズパイで管理する手順を詳しく解説 @Qiita</p>
+    </a>
+  </div>
+</section>
+
+    <section style="margin-bottom: 3rem">
+      <h2
+        style="
+          font-size: 2rem;
+          border-left: 5px solid #004f2a;
+          padding-left: 0.5rem;
+          margin-bottom: 1rem;
+        "
+      >
+        24時間BGMライブ配信
+      </h2>
+      <iframe
+  width="560" height="315"
+  src="https://www.youtube.com/embed/live_stream?channel=UChCrMXcFQD9sCIzngwsI4Bw"
+  frameborder="0" allowfullscreen>
+</iframe>
+    </section>
+
+    <section style="margin-bottom: 3rem">
+      <h2
+        style="
+          font-size: 2rem;
+          border-left: 5px solid #004f2a;
+          padding-left: 0.5rem;
+          margin-bottom: 1rem;
+        "
+      >
+        このサイトは何？
+      </h2>
+      <p>
+        テキトーに作った作品自慢したりしてます<br>
+        SNSなどでコンテンツを共有するときに使ったりします<br>
+      </p>
+    </section>
+
+    <section style="margin-bottom: 3rem">
+      <h2
+        style="
+          font-size: 2rem;
+          border-left: 5px solid #004f2a;
+          padding-left: 0.5rem;
+          margin-bottom: 1rem;
+        "
+      >
+        wsn0672って誰？
+      </h2>
+      <p>
+        東京都在住の中学2年生エンジニア。ガジェオタでApple信者🍎
+        Web開発や電子工作を楽しんでるらしい
+      </p>
+    </section>
+
+    <section style="margin-bottom: 3rem">
+      <h2
+        style="
+          font-size: 2rem;
+          border-left: 5px solid #004f2a;
+          padding-left: 0.5rem;
+          margin-bottom: 1rem;
+        "
+      >
+        コンタクト
+      </h2>
+      <p>
+        質問や連絡は
+        <a
+          href="mailto:wsn0672@example.com"
+          style="color: #00a759; text-decoration: none"
+          >renraku@wsn0672.org</a
+        >
+        まで
+      </p>
+      <p>
+        このサイトに関するお問い合わせは
+        <a
+          href="mailto:wsn0672@example.com"
+          style="color: #00a759; text-decoration: none"
+          >support@wsn0672.org</a
+        >
+        まで
+      </p>
+
+        <p>サイトに問題があった場合は
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSehTjd9PetGGwJSYHYfDHZkQWZdBk_hibKM5hP9FfcJ6bQjtw/viewform?usp=dialog" 
+            target="_blank" rel="noopener noreferrer" 
+            style="color: #6caf50; text-decoration: underline;">
+                こちら
+            </a>
+            からご報告ください
+        </p>
+    </section>
+    <section style="margin-bottom: 3rem">
+      <h2
+        style="
+          font-size: 2rem;
+          border-left: 5px solid #004f2a;
+          padding-left: 0.5rem;
+          margin-bottom: 1rem;
+        "
+      >
+        ソーシャルリンク
+      </h2>
+      <ul style="display: flex; justify-content: center; gap: 1rem; list-style: none; padding: 0; flex-wrap: wrap;">
+  <li>
+    <a href="https://x.com/wsn0672" target="_blank" style="display: inline-block; background: #1da1f2; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
+      X
+    </a>
+  </li>
+  <li>
+    <a href="https://scratch.mit.edu/users/wsn0672" target="_blank" style="display: inline-block; background: #ff8c00; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
+      Scratch
+    </a>
+  </li>
+  <li>
+    <a href="https://qiita.com/wsn0672" target="_blank" style="display: inline-block; background: #55c500; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
+      Qiita
+    </a>
+  </li>
+</ul>
+    </section>
+  </main> 
+  <footer
+    id="client-info"
+    class="client-info"
+    style="text-align: center; margin-top: 3rem; padding: 1rem; color: #f4f4f4; font-family: 'Noto Sans JP', sans-serif;"
+  >
+    <h3>🔍 クライアント情報</h3>
+    <p>IPアドレス: <span id="ip">取得中...</span></p>
+    <p>ブラウザ: <span id="browser">取得中...</span></p>
+  </footer>
+    <div style="text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 2rem;">
+    &copy; 2025 wsn0672. All rights reserved.
+  </div>
+</body>
+</html>
