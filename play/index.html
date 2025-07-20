@@ -191,9 +191,38 @@
     #finalScore {
       opacity: 0;
       transition: opacity 1.5s ease 2s;
+      font-size: 4rem;
+      margin-top: 1rem;
     }
 
     #resultOverlay.show #finalScore {
+      opacity: 1;
+    }
+
+    #finalScoreLabel {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      opacity: 0;
+      transition: opacity 1s ease;
+      text-align: center;
+    }
+
+    #shareButton {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      padding: 0.5rem 1.5rem;
+      background: #1da1f2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 1s ease;
+      display: none;
+    }
+
+    #shareButton.show {
       opacity: 1;
     }
   </style>
@@ -240,7 +269,11 @@
 <div id="scoreDisplay">0</div>
 
 <div id="resultOverlay">
-  <div id="finalScore"></div>
+  <div id="finalScoreContainer">
+    <div id="finalScoreLabel">Score</div>
+    <div id="finalScore"></div>
+    <button id="shareButton" style="display: none;">Xでシェア</button>
+  </div>
 </div>
 
 <script>
@@ -362,6 +395,9 @@ document.addEventListener('keydown', e => {
 });
 
 // 譜面JSONを曲名に基づいて取得
+// Hide score display before countdown starts (optional but safe)
+scoreDisplay.style.display = 'none';
+
 fetch("/notes/" + chartFile)
   .then(res => {
     if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
@@ -379,7 +415,7 @@ fetch("/notes/" + chartFile)
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        scoreDisplay.style.display = 'none';
+        scoreDisplay.style.display = 'none'; // Hide score display at gameplay start
         bgVideo.currentTime = 0;
         bgVideo.play();
         startTime = performance.now();
@@ -528,11 +564,48 @@ bgVideo.addEventListener('timeupdate', () => {
 });
 
 function showResult() {
+  // Hide game lanes
+  document.getElementById('lanes').style.display = 'none';
+
   resultOverlay.style.display = 'flex';
   setTimeout(() => resultOverlay.classList.add('show'), 10);
-  finalScore.textContent = `スコア: ${score}`;
+
+  // Animate Score label, number, and share button
+  finalScore.textContent = "";
+  const scoreLabel = document.getElementById('finalScoreLabel');
+  const shareButton = document.getElementById('shareButton');
+  // Hide all at start
+  scoreLabel.style.opacity = '0';
+  finalScore.style.opacity = '0';
+  shareButton.style.display = 'none';
+  shareButton.classList.remove('show');
+
+  setTimeout(() => {
+    scoreLabel.style.opacity = '1';
+    finalScore.textContent = score;
+    finalScore.style.opacity = '1';
+  }, 1000);
+
+  setTimeout(() => {
+    shareButton.style.display = 'block';
+    // Next tick for transition
+    setTimeout(() => shareButton.classList.add('show'), 10);
+  }, 2000);
+
   bgVideo.pause();
 }
+
+// Share button functionality
+document.addEventListener('DOMContentLoaded', () => {
+  const shareButton = document.getElementById('shareButton');
+  if (shareButton) {
+    shareButton.addEventListener('click', () => {
+      const shareText = `${score}点とったよ！みんなもやってみて！\nhttps://わためぇ自由研究.wsn0672.org/`;
+      const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+      window.open(shareUrl, '_blank');
+    });
+  }
+});
 </script>
 
 </body>

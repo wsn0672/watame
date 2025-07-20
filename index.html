@@ -20,42 +20,6 @@
     <!-- 自作CSS -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <style>
-      #scoreTitle {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        color: white;
-        font-weight: bold;
-        text-align: center;
-      }
-
-      #finalScore {
-        font-size: 4rem;
-        color: white;
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-
-      #resultButtons button {
-        font-size: 1.2rem;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        border-radius: 6px;
-        border: none;
-        background-color: #1DA1F2;
-        color: white;
-        transition: background-color 0.3s ease;
-      }
-
-      #resultButtons button:hover {
-        background-color: #0d8ddb;
-      }
-
-      /* Hide lanes during result */
-      #lanes.result-hidden {
-        display: none;
-      }
-    </style>
 </head>
 <body>
   <header>
@@ -100,24 +64,7 @@
   UAをコピー (報告用)
 </button>
 
-<div id="resultOverlay">
-  <div id="scoreTitle">Score</div>
-  <div id="finalScore">0</div>
-  <div id="resultButtons" style="display:none;">
-    <button id="shareXBtn">Xでシェアする</button>
-  </div>
-</div>
-
 <script>
-  let score = 0;
-  const scoreDisplay = document.getElementById('finalScore');
-
-  function updateScore(newScore) {
-    score = newScore;
-    console.log("Score:", score);
-    if(scoreDisplay) scoreDisplay.textContent = score;
-  }
-
   const uaButton = document.getElementById('copyUaBtn');
   uaButton.addEventListener('click', () => {
     navigator.clipboard.writeText(navigator.userAgent)
@@ -128,40 +75,4 @@
         }, 2000);
       });
   });
-
-  const scoreTitle = document.getElementById('scoreTitle');
-  const resultButtons = document.getElementById('resultButtons');
-  const shareXBtn = document.getElementById('shareXBtn');
-  const lanesContainer = document.getElementById('lanes');
-
-  function showResult() {
-    // Hide lanes
-    lanesContainer.classList.add('result-hidden');
-
-    resultOverlay.style.display = 'flex';
-    setTimeout(() => resultOverlay.classList.add('show'), 10);
-
-    // Animate score count up
-    let displayedScore = 0;
-    const increment = Math.max(1, Math.floor(score / 100));
-    const interval = setInterval(() => {
-      displayedScore += increment;
-      if (displayedScore >= score) {
-        displayedScore = score;
-        clearInterval(interval);
-        // Show buttons after score animation ends
-        resultButtons.style.display = 'block';
-      }
-      finalScore.textContent = displayedScore.toLocaleString();
-    }, 20);
-
-    bgVideo.pause();
-  }
-
-  shareXBtn.addEventListener('click', () => {
-    const tweetText = encodeURIComponent(`このゲームで${score.toLocaleString()}点とったよ！みんなもやってみて！\nhttps://わためぇ自由研究.wsn0672.org`);
-    const url = `https://twitter.com/intent/tweet?text=${tweetText}`;
-    window.open(url, '_blank');
-  });
-</script></body>
-</html>
+</script>
