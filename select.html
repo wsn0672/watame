@@ -3,19 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>楽曲選択 - わためぇ音ゲー</title>
-  <link rel="icon" href="/favicon.png" type="image/png" />
-  <meta name="description" content="wsn0672の自家製Webサーバー" />
-  
-  <!-- Google Fonts -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"
-    rel="stylesheet"
-  />
-  
-  <!-- リセットCSS -->
-  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css" />
-  
-  <!-- 自作CSS -->
   <style>
     body {
       font-family: 'Noto Sans JP', sans-serif;
@@ -29,23 +16,25 @@
       margin: 20px 0;
     }
     .song-list {
-      list-style: none;
-      padding: 0;
-      max-width: 400px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 20px;
+      max-width: 600px;
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
+      padding: 0;
+      list-style: none;
     }
     .song-list button {
       background: #444;
       border: none;
-      padding: 15px;
-      font-size: 1.2rem;
-      border-radius: 10px;
+      padding: 40px 0;
+      font-size: 1.5rem;
+      border-radius: 15px;
       color: white;
       cursor: pointer;
       transition: transform 0.3s ease, background-color 0.3s ease;
+      width: 100%;
+      height: 120px;
     }
     .song-list button:hover {
       background: #ff90b3;
@@ -71,16 +60,16 @@
   </header>
 
   <!-- 背景動画 -->
-  <video id="bgVideo" autoplay muted loop playsinline>
+  <video id="bgVideo" autoplay loop playsinline>
     <source id="bgSource" src="" type="video/mp4" />
   </video>
 
   <main>
     <ul class="song-list">
-      <li><button data-file="mysong.mp4" data-mv="/musics/mysong.mp4">My Song</button></li>
-      <li><button data-file="aimaishokora-te.mp4" data-mv="/musics/aimaishokora-te.mp4">愛昧ショコラーテ</button></li>
-      <li><button data-file="watameister.mp4" data-mv="/musics/watameister.mp4">わためマイスター</button></li>
-      <li><button data-file="biri.mp4" data-mv="/musics/biri.mp4">ビリ</button></li>
+      <li><button data-file="mysong.mp4" data-mv="/musics/mysong.mp4" data-chorus="45">My Song</button></li>
+      <li><button data-file="aimaishokora-te.mp4" data-mv="/musics/aimaishokora-te.mp4" data-chorus="101">愛昧ショコラーテ</button></li>
+      <li><button data-file="watameister.mp4" data-mv="/musics/watameister.mp4" data-chorus="63">わためマイスター</button></li>
+      <li><button data-file="biri.mp4" data-mv="/musics/biri.mp4" data-chorus="57">ビリ</button></li>
     </ul>
   </main>
 
@@ -91,9 +80,12 @@
     document.querySelectorAll('.song-list button').forEach(button => {
       button.addEventListener('mouseenter', () => {
         const mv = button.getAttribute('data-mv');
+        const chorus = parseFloat(button.getAttribute('data-chorus')) || 0;
         if (mv) {
           bgSource.src = mv;
           bgVideo.load();
+          bgVideo.currentTime = chorus;
+          bgVideo.muted = false;  // 音ありにする
           bgVideo.style.opacity = 0.15;
           bgVideo.play();
         }
