@@ -275,7 +275,7 @@ document.addEventListener('keydown', e => {
     const now = performance.now() - startTime;
     const timeDiff = now - closestNoteTime;
 
-    if (closestDistance < 50) {
+    if (closestDistance < 100) {  // 判定を甘く (±1個分ぐらい)
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
       closestNote.remove();
     } else {
