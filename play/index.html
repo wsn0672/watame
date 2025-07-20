@@ -157,15 +157,7 @@
       z-index: 10;
     }
     #scoreDisplay {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 2rem;
-      font-weight: bold;
-      color: yellow;
-      font-family: monospace;
-      z-index: 999;
+      display: none; /* 常に非表示に */
     }
     #resultOverlay {
       position: fixed;
@@ -182,7 +174,6 @@
       font-weight: bold;
       z-index: 10000;
       transition: transform 2s ease;
-      flex-direction: column;
     }
 
     #resultOverlay.show {
@@ -196,37 +187,6 @@
 
     #resultOverlay.show #finalScore {
       opacity: 1;
-    }
-
-    #finalScoreTitle, #finalScoreValue, #shareButtons {
-      color: white;
-      font-weight: bold;
-      font-family: monospace;
-      text-align: center;
-      user-select: none;
-    }
-
-    #finalScoreTitle {
-      font-size: 3rem;
-    }
-
-    #finalScoreValue {
-      font-size: 5rem;
-      margin-top: 10px;
-    }
-
-    #shareButtons button {
-      font-size: 1.5rem;
-      background-color: #1DA1F2;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    #shareButtons button:hover {
-      background-color: #0d8ddb;
     }
   </style>
 </head>
@@ -272,10 +232,9 @@
 <div id="scoreDisplay">0</div>
 
 <div id="resultOverlay">
-  <div id="finalScoreTitle" style="opacity:0; transition: opacity 1s ease;">Score</div>
-  <div id="finalScoreValue" style="opacity:0; transition: opacity 1s ease;">0</div>
-  <div id="shareButtons" style="opacity:0; transition: opacity 1s ease; margin-top: 30px;">
-    <button id="shareX">Xでシェアする</button>
+  <div id="finalScore"></div>
+  <div id="shareButtons">
+    <button id="shareX">Share</button>
   </div>
 </div>
 
@@ -291,8 +250,6 @@ const bgSource = document.getElementById('bgSource');
 const resultBGM = document.getElementById('resultBGM');
 let forcedEnd = false;
 
-const lanes = document.getElementById('lanes');
-
 // Get cached MV URL from sessionStorage
 const mvUrl = sessionStorage.getItem('mvUrl');
 
@@ -305,7 +262,7 @@ if (mvUrl) {
   bgVideo.load();
 }
 
-const lanesElements = document.querySelectorAll('.lane');
+const lanes = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('.lane-label');
 const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
 
@@ -316,9 +273,7 @@ let score = 0;
 const scoreDisplay = document.getElementById('scoreDisplay');
 
 const resultOverlay = document.getElementById('resultOverlay');
-const finalScoreTitle = document.getElementById('finalScoreTitle');
-const finalScoreValue = document.getElementById('finalScoreValue');
-const shareButtons = document.getElementById('shareButtons');
+const finalScore = document.getElementById('finalScore');
 let resultShown = false;
 
 function showJudgment(text) {
@@ -345,12 +300,12 @@ document.addEventListener('keydown', e => {
     keyDiv.classList.add('key-press');
     setTimeout(() => keyDiv.classList.remove('key-press'), 100);
 
-    const lane = lanesElements[index];
+    const lane = lanes[index];
     const notes = lane.querySelectorAll('.note');
 
     if (notes.length === 0) {
       score -= Math.floor(score * 0.1);
-      scoreDisplay.textContent = score;
+      // scoreDisplay.textContent = score;
       showJudgment("MISS");
       return;
     }
@@ -375,7 +330,7 @@ document.addEventListener('keydown', e => {
 
     if (!closestNote) {
       score -= Math.floor(score * 0.1);
-      scoreDisplay.textContent = score;
+      // scoreDisplay.textContent = score;
       showJudgment("MISS");
       return;
     }
@@ -393,13 +348,13 @@ document.addEventListener('keydown', e => {
       }
 
       score += Math.max(0, noteScore);
-      scoreDisplay.textContent = score;
+      // scoreDisplay.textContent = score;
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
 
       closestNote.remove();
     } else {
       score -= Math.floor(score * 0.1);
-      scoreDisplay.textContent = score;
+      // scoreDisplay.textContent = score;
       showJudgment("MISS");
     }
   }
@@ -420,11 +375,10 @@ fetch("/notes/" + chartFile)
       countdown--;
       if (countdown > 0) {
         loadingScreen.textContent = countdown;
-        scoreDisplay.style.display = 'none';
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        scoreDisplay.style.display = 'block';
+        // scoreDisplay.style.display = 'none';
         bgVideo.currentTime = 0;
         bgVideo.play();
         startTime = performance.now();
@@ -456,10 +410,10 @@ function spawnNote(noteData) {
   const note = document.createElement('div');
   note.classList.add('note', noteType);
 
-  const judgmentLine = lanesElements[laneIndex].querySelector('.judgeline');
+  const judgmentLine = lanes[laneIndex].querySelector('.judgeline');
   const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
-  const laneHeight = lanesElements[laneIndex].offsetHeight;
+  const laneHeight = lanes[laneIndex].offsetHeight;
 
   // const nowTime = performance.now() - startTime;
   // const timeUntilHit = noteData.time - nowTime;
@@ -471,7 +425,7 @@ function spawnNote(noteData) {
   // 譜面のタイムスタンプをdatasetに保存
   note.dataset.time = noteData.time;
 
-  lanesElements[laneIndex].appendChild(note);
+  lanes[laneIndex].appendChild(note);
 
   // const approachTime = 1000; // 1秒で到達
   
@@ -500,7 +454,7 @@ function spawnNote(noteData) {
         note.style.left = (shift * 100) + "%";
 
         setTimeout(() => {
-          lanesElements[targetLane].appendChild(note);
+          lanes[targetLane].appendChild(note);
           note.style.transition = "transform 0.3s ease";
           note.style.left = "0";
           note.style.transform = "translateX(0)";
@@ -518,7 +472,7 @@ function spawnNote(noteData) {
           } else {
             score -= Math.floor(score * 0.1);
           }
-          scoreDisplay.textContent = score;
+          // scoreDisplay.textContent = score;
           showJudgment("MISS");
           note.remove();
         }
@@ -541,7 +495,7 @@ function spawnNote(noteData) {
           } else {
             score -= Math.floor(score * 0.1);
           }
-          scoreDisplay.textContent = score;
+          // scoreDisplay.textContent = score;
           showJudgment("MISS");
           note.remove();
         }
@@ -572,44 +526,17 @@ bgVideo.addEventListener('timeupdate', () => {
 });
 
 function showResult() {
-  lanes.style.display = 'none'; // レーン非表示
-  scoreDisplay.style.display = 'none'; // プレイ中のスコア非表示
   resultOverlay.style.display = 'flex';
-
-  // 黒幕をゆっくり降ろす
   setTimeout(() => {
     resultOverlay.classList.add('show');
-    resultBGM.currentTime = 0;
-    resultBGM.play();
-
-    // Score タイトルフェードイン
-    const title = document.getElementById('finalScoreTitle');
-    const value = document.getElementById('finalScoreValue');
     const share = document.getElementById('shareButtons');
-
-    title.style.opacity = '1';
-
-    // スコア値フェードイン (タイトルの後)
-    setTimeout(() => {
-      value.textContent = score;
-      value.style.opacity = '1';
-    }, 1000);
-
-    // シェアボタンフェードイン (スコア表示の後)
-    setTimeout(() => {
-      share.style.opacity = '1';
-    }, 2500);
+    share.style.opacity = '1';
   }, 10);
-
+  finalScore.textContent = `スコア: ${score}`;
   bgVideo.pause();
+  resultBGM.currentTime = 0;
+  resultBGM.play();
 }
-
-document.getElementById('shareX').addEventListener('click', () => {
-  const url = encodeURIComponent(location.href);
-  const text = encodeURIComponent(`このゲームで${score}点とったよ！みんなもやってみて！`);
-  const shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
-  window.open(shareUrl, '_blank', 'noopener');
-});
 
 document.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'r') {
@@ -617,6 +544,10 @@ document.addEventListener('keydown', e => {
     bgVideo.pause();
     showResult();
   }
+});
+
+document.getElementById('shareX').addEventListener('click', () => {
+  console.log('Share button clicked');
 });
 </script>
 
