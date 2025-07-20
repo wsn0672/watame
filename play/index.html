@@ -156,9 +156,6 @@
       transition: opacity 0.1s ease;
       z-index: 10;
     }
-    #scoreDisplay {
-      display: none; /* 常に非表示に */
-    }
     #resultOverlay {
       position: fixed;
       top: -100%;
@@ -187,6 +184,47 @@
 
     #resultOverlay.show #finalScore {
       opacity: 1;
+    }
+
+    #finalScoreTitle, #finalScoreValue, #shareButtons {
+      color: white;
+      font-weight: bold;
+      font-family: monospace;
+      text-align: center;
+      user-select: none;
+    }
+
+    #finalScoreTitle {
+      font-size: 3rem;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    #finalScoreValue {
+      font-size: 5rem;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    #shareButtons {
+      margin-top: 30px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    #shareButtons button {
+      font-size: 1.5rem;
+      background-color: #1DA1F2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #shareButtons button:hover {
+      background-color: #0d8ddb;
     }
   </style>
 </head>
@@ -229,17 +267,16 @@
 </div>
 
 <div id="judgmentText"></div>
-<div id="scoreDisplay">0</div>
 
-<div id="resultOverlay">
-  <div id="finalScoreTitle" style="opacity:0; transition: opacity 1s ease;">Score</div>
-  <div id="finalScoreValue" style="opacity:0; transition: opacity 1s ease;">0</div>
-  <div id="shareButtons" style="opacity:0; transition: opacity 1s ease; margin-top: 30px;">
+<div id="resultOverlay" style="display:none;">
+  <div id="finalScoreTitle">Score</div>
+  <div id="finalScoreValue">0</div>
+  <div id="shareButtons">
     <button id="shareX">Xでシェアする</button>
   </div>
 </div>
 
-<audio id="resultBGM" src="bgm.mp3" loop></audio>
+<audio id="resultBGM" src="/musics/bgm.mp3" loop></audio>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -249,6 +286,13 @@ const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
 const resultBGM = document.getElementById('resultBGM');
+
+const resultOverlay = document.getElementById('resultOverlay');
+const finalScoreTitle = document.getElementById('finalScoreTitle');
+const finalScoreValue = document.getElementById('finalScoreValue');
+const shareButtons = document.getElementById('shareButtons');
+const lanesContainer = document.getElementById('lanes');
+let resultShown = false;
 let forcedEnd = false;
 
 // Get cached MV URL from sessionStorage
@@ -271,11 +315,6 @@ const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
-const scoreDisplay = document.getElementById('scoreDisplay');
-
-const resultOverlay = document.getElementById('resultOverlay');
-const finalScore = document.getElementById('finalScore');
-let resultShown = false;
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -306,7 +345,6 @@ document.addEventListener('keydown', e => {
 
     if (notes.length === 0) {
       score -= Math.floor(score * 0.1);
-      // scoreDisplay.textContent = score;
       showJudgment("MISS");
       return;
     }
@@ -331,7 +369,6 @@ document.addEventListener('keydown', e => {
 
     if (!closestNote) {
       score -= Math.floor(score * 0.1);
-      // scoreDisplay.textContent = score;
       showJudgment("MISS");
       return;
     }
@@ -340,7 +377,7 @@ document.addEventListener('keydown', e => {
     const timeDiff = now - closestNoteTime;
 
     if (closestDistance < 100) {  // 判定を甘く (±1個分ぐらい)
-      const baseScore = 2000;
+      const baseScore = 1000;
       const msDiff = Math.abs(Math.round(timeDiff));
       let noteScore = baseScore - (msDiff * 10);
 
@@ -349,13 +386,11 @@ document.addEventListener('keydown', e => {
       }
 
       score += Math.max(0, noteScore);
-      // scoreDisplay.textContent = score;
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
 
       closestNote.remove();
     } else {
       score -= Math.floor(score * 0.1);
-      // scoreDisplay.textContent = score;
       showJudgment("MISS");
     }
   }
@@ -379,7 +414,6 @@ fetch("/notes/" + chartFile)
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        // scoreDisplay.style.display = 'none';
         bgVideo.currentTime = 0;
         bgVideo.play();
         startTime = performance.now();
@@ -416,10 +450,6 @@ function spawnNote(noteData) {
 
   const laneHeight = lanes[laneIndex].offsetHeight;
 
-  // const nowTime = performance.now() - startTime;
-  // const timeUntilHit = noteData.time - nowTime;
-  // const speed = targetY / timeUntilHit;
-
   const approachTime = 1000; // 1秒で判定エリアに到達
   const speed = targetY / approachTime;
 
@@ -427,9 +457,6 @@ function spawnNote(noteData) {
   note.dataset.time = noteData.time;
 
   lanes[laneIndex].appendChild(note);
-
-  // const approachTime = 1000; // 1秒で到達
-  
 
   let start = performance.now();
   let slideDone = false;
@@ -450,7 +477,6 @@ function spawnNote(noteData) {
       note.style.top = pos + 'px';
 
       if (!slideDone && pos > targetY / 3) { // 1/3あたりに移動開始
-        // 横スムーズ移動用にleftの数値とトランジション設定
         note.style.transition = "left 0.5s ease, transform 0.5s ease";
         note.style.left = (shift * 100) + "%";
 
@@ -473,7 +499,6 @@ function spawnNote(noteData) {
           } else {
             score -= Math.floor(score * 0.1);
           }
-          // scoreDisplay.textContent = score;
           showJudgment("MISS");
           note.remove();
         }
@@ -496,7 +521,6 @@ function spawnNote(noteData) {
           } else {
             score -= Math.floor(score * 0.1);
           }
-          // scoreDisplay.textContent = score;
           showJudgment("MISS");
           note.remove();
         }
@@ -527,41 +551,54 @@ bgVideo.addEventListener('timeupdate', () => {
 });
 
 function showResult() {
+  // 黒幕表示
   resultOverlay.style.display = 'flex';
+
+  // レーン非表示
+  lanesContainer.style.display = 'none';
+
+  // 動画とノーツの処理停止
+  forcedEnd = true;
+  bgVideo.pause();
+
+  // 黒幕ゆっくり降ろす
   setTimeout(() => {
     resultOverlay.classList.add('show');
-    const title = document.getElementById('finalScoreTitle');
-    const value = document.getElementById('finalScoreValue');
-    const share = document.getElementById('shareButtons');
+    resultBGM.currentTime = 0;
+    resultBGM.play();
 
-    title.style.opacity = '1';
+    // Scoreタイトルフェードイン
+    finalScoreTitle.style.opacity = '1';
 
+    // 数字フェードイン（タイトルの後）
     setTimeout(() => {
-      value.textContent = score;
-      value.style.opacity = '1';
+      finalScoreValue.textContent = score;
+      finalScoreValue.style.opacity = '1';
     }, 1000);
 
+    // シェアボタンフェードイン（数字の後）
     setTimeout(() => {
-      share.style.opacity = '1';
+      shareButtons.style.opacity = '1';
     }, 2500);
   }, 10);
-  bgVideo.pause();
-  resultBGM.currentTime = 0;
-  resultBGM.play();
 }
+
+document.getElementById('shareX').addEventListener('click', () => {
+  const url = encodeURIComponent(location.href);
+  const text = encodeURIComponent(`このゲームで${score}点とったよ！みんなもやってみて！`);
+  const shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+  window.open(shareUrl, '_blank', 'noopener');
+});
 
 document.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'r') {
-    forcedEnd = true;
-    bgVideo.pause();
-    showResult();
+    if (!resultShown) {
+      forcedEnd = true;
+      bgVideo.pause();
+      showResult();
+    }
   }
 });
-
-document.getElementById('shareX').addEventListener('click', () => {
-  console.log('Share button clicked');
-});
 </script>
-
 </body>
 </html>
