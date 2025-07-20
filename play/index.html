@@ -30,7 +30,6 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       object-fit: cover;
-      opacity: 0.15;
       z-index: -1;
     }
     #lanes {
@@ -44,12 +43,23 @@
       height: 100vh; /* レーンを画面いっぱいの高さに */
     }
     .lane {
-      width: 80px;
+      width: 120px;
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid white;
       position: relative;
       overflow: hidden;
-      height: 100%; /* レーンの高さを親に合わせる */
+      height: calc(100% - 100px); /* 下に少し余白 */
+    }
+    #keys {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 40px;
+      font-size: 2rem;
+      color: white;
+      font-family: monospace;
     }
     .note {
       position: absolute;
@@ -65,7 +75,7 @@
 <body>
 
 <!-- 背景動画 -->
-<video id="bgVideo" autoplay loop playsinline controls>
+<video id="bgVideo" autoplay loop playsinline>
   <source id="bgSource" src="" type="video/mp4" />
 </video>
 
@@ -75,6 +85,13 @@
   <div class="lane" data-lane="1"></div>
   <div class="lane" data-lane="2"></div>
   <div class="lane" data-lane="3"></div>
+</div>
+
+<div id="keys">
+  <div>D</div>
+  <div>F</div>
+  <div>J</div>
+  <div>K</div>
 </div>
 
 <script>
