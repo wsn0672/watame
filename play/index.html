@@ -167,6 +167,35 @@
       font-family: monospace;
       z-index: 999;
     }
+    #resultOverlay {
+      position: fixed;
+      top: -100%;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 4rem;
+      font-weight: bold;
+      z-index: 10000;
+      transition: transform 2s ease;
+    }
+
+    #resultOverlay.show {
+      transform: translateY(100%);
+    }
+
+    #finalScore {
+      opacity: 0;
+      transition: opacity 1.5s ease 2s;
+    }
+
+    #resultOverlay.show #finalScore {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -210,6 +239,10 @@
 <div id="judgmentText"></div>
 <div id="scoreDisplay">0</div>
 
+<div id="resultOverlay">
+  <div id="finalScore"></div>
+</div>
+
 <script>
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
@@ -239,6 +272,10 @@ const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
 const scoreDisplay = document.getElementById('scoreDisplay');
+
+const resultOverlay = document.getElementById('resultOverlay');
+const finalScore = document.getElementById('finalScore');
+let resultShown = false;
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -342,6 +379,7 @@ fetch("/notes/" + chartFile)
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
+        scoreDisplay.style.display = 'none';
         bgVideo.currentTime = 0;
         bgVideo.play();
         startTime = performance.now();
@@ -480,6 +518,20 @@ function gameLoop() {
   }
 
   requestAnimationFrame(gameLoop);
+}
+
+bgVideo.addEventListener('timeupdate', () => {
+  if (!resultShown && bgVideo.duration - bgVideo.currentTime <= 3) {
+    resultShown = true;
+    showResult();
+  }
+});
+
+function showResult() {
+  resultOverlay.style.display = 'flex';
+  setTimeout(() => resultOverlay.classList.add('show'), 10);
+  finalScore.textContent = `スコア: ${score}`;
+  bgVideo.pause();
 }
 </script>
 
