@@ -208,6 +208,8 @@
 
     #resultOverlay.show #shareButton {
       opacity: 1;
+      /* transition-delay: 4s; 削除またはコメントアウト */
+      display: inline-block;
     }
 
     #finalScoreTitle {
@@ -318,9 +320,9 @@ const finalScoreValue = document.getElementById('finalScoreValue');
 const shareButton = document.getElementById('shareButton');
 
 // シェアボタンを最初は非表示・非アクティブにする
+shareButton.style.display = 'none';
 shareButton.style.opacity = '0';
 shareButton.style.pointerEvents = 'none';
-shareButton.style.display = 'none';  // 初期は非表示
 
 let resultShown = false;
 let bgmAudio = new Audio('bgm.mp3');
@@ -592,8 +594,8 @@ function showResult() {
       clearInterval(interval);
       // 停止タイミングで動画を停止
       bgVideo.pause();
-      // シェアボタンを確実に表示するためにstyle変更
-      shareButton.style.display = 'inline-block'; // 確実に見えるように
+      // シェアボタンを確実に表示・有効化
+      shareButton.style.display = 'inline-block';
       shareButton.style.opacity = '1';
       shareButton.style.pointerEvents = 'auto';
     }
