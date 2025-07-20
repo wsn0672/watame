@@ -437,6 +437,9 @@ fetch("/notes/" + chartFile)
   })
   .then(data => {
     chart = data;
+
+    spawnPreNotes(); // 追加: 開始1秒以内のノーツを先に表示
+
     let countdown = 3;
     loadingScreen.textContent = countdown;
 
@@ -462,6 +465,17 @@ fetch("/notes/" + chartFile)
 
 let chart = [];
 let startTime = 0;
+
+// 開始時にアプローチタイムより早いノーツを先に生成する
+function spawnPreNotes() {
+  for (let i = 0; i < chart.length; i++) {
+    if (chart[i].time <= approachTime) {
+      spawnNote(chart[i]);
+      chart.splice(i, 1);
+      i--;
+    }
+  }
+}
 
 // ノーツ生成
 function spawnNote(noteData) {
