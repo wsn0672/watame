@@ -76,31 +76,36 @@
   <script>
     const bgVideo = document.getElementById('bgVideo');
     const bgSource = document.getElementById('bgSource');
+document.querySelectorAll('.song-list button').forEach(button => {
+  button.addEventListener('mouseenter', () => {
+    const mv = button.getAttribute('data-mv');
+    const chorus = parseFloat(button.getAttribute('data-chorus')) || 0;
+    if (mv) {
+      bgSource.src = mv;
+      bgVideo.load();
 
-    document.querySelectorAll('.song-list button').forEach(button => {
-      button.addEventListener('mouseenter', () => {
-        const mv = button.getAttribute('data-mv');
-        const chorus = parseFloat(button.getAttribute('data-chorus')) || 0;
-        if (mv) {
-          bgSource.src = mv;
-          bgVideo.load();
-          bgVideo.currentTime = chorus;
-          bgVideo.muted = false;  // 音ありにする
-          bgVideo.style.opacity = 0.15;
-          bgVideo.play();
-        }
-      });
+      bgVideo.muted = true;  // いったんミュートにする
+      bgVideo.play();
 
-      button.addEventListener('mouseleave', () => {
-        bgVideo.pause();
-        bgVideo.style.opacity = 0;
-      });
+      // メタデータ読み込み後にcurrentTimeセット＆ミュート解除
+      bgVideo.onloadedmetadata = () => {
+        bgVideo.currentTime = chorus;
+        bgVideo.muted = false;
+        bgVideo.style.opacity = 0.15;
+      };
+    }
+  });
 
-      button.addEventListener('click', () => {
-        const file = button.getAttribute('data-file');
-        window.location.href = `/game.html?song=${encodeURIComponent(file)}`;
-      });
-    });
+  button.addEventListener('mouseleave', () => {
+    bgVideo.pause();
+    bgVideo.style.opacity = 0;
+  });
+
+  button.addEventListener('click', () => {
+    const file = button.getAttribute('data-file');
+    window.location.href = `/game.html?song=${encodeURIComponent(file)}`;
+  });
+});
   </script>
 </body>
 </html>
