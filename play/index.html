@@ -348,10 +348,11 @@ function spawnNote(noteData) {
   lanes[laneIndex].appendChild(note);
 
   const judgmentLine = lanes[laneIndex].querySelector('.judgeline');
-  const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
+  const laneHeight = lanes[laneIndex].offsetHeight;
+  const judgmentOffset = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
   const approachTime = 1000; // 1秒で到達
-  const speed = targetY / approachTime;
+  const speed = laneHeight / approachTime;
 
   let start = performance.now();
   let slideDone = false;
@@ -371,7 +372,7 @@ function spawnNote(noteData) {
       let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
-      if (!slideDone && pos > targetY / 3) { // 1/3あたりに移動開始
+      if (!slideDone && pos > judgmentOffset / 3) { // 1/3あたりに移動開始
         // 横スムーズ移動用にleftの数値とトランジション設定
         note.style.transition = "left 0.5s ease, transform 0.5s ease";
         note.style.left = (shift * 100) + "%";
@@ -386,7 +387,7 @@ function spawnNote(noteData) {
         }, 10);
       }
 
-      if (pos < targetY) {
+      if (pos < laneHeight) {
         requestAnimationFrame(animate);
       } else {
         note.remove();
@@ -400,7 +401,7 @@ function spawnNote(noteData) {
       let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
-      if (pos < targetY) {
+      if (pos < laneHeight) {
         requestAnimationFrame(animate);
       } else {
         note.remove();
