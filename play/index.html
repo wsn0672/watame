@@ -437,13 +437,11 @@ fetch("/notes/" + chartFile)
   })
   .then(data => {
     chart = data;
-
-    spawnPreNotes(); // 追加: 開始1秒以内のノーツを先に表示
-
     let countdown = 3;
     loadingScreen.textContent = countdown;
 
-    startTime = performance.now() - approachTime; // ここでアプローチタイムだけ先行スタート
+    // カウントダウン3秒前から開始時間基準をスタート
+    startTime = performance.now() - approachTime - 3000; // カウントダウン3秒前から開始時間基準をスタート
     gameLoop(); // ゲームループ開始
 
     const countdownInterval = setInterval(() => {
@@ -465,17 +463,6 @@ fetch("/notes/" + chartFile)
 
 let chart = [];
 let startTime = 0;
-
-// 開始時にアプローチタイムより早いノーツを先に生成する
-function spawnPreNotes() {
-  for (let i = 0; i < chart.length; i++) {
-    if (chart[i].time <= approachTime) {
-      spawnNote(chart[i]);
-      chart.splice(i, 1);
-      i--;
-    }
-  }
-}
 
 // ノーツ生成
 function spawnNote(noteData) {
