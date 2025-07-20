@@ -78,6 +78,21 @@
     .note.slide {
       background: #c060ff;
     }
+    #titleScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Noto Sans JP', sans-serif;
+      z-index: 99;
+    }
   </style>
 </head>
 <body>
@@ -102,6 +117,8 @@
   <div>K</div>
 </div>
 
+<div id="titleScreen">Now Loading... 曲スタートまで少々お待ちください</div>
+
 <script>
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
@@ -124,9 +141,13 @@ fetch("/notes/" + chartFile)
     return res.json();
   })
   .then(data => {
+    const titleScreen = document.getElementById('titleScreen');
     chart = data;
-    startTime = performance.now();
-    gameLoop();
+    setTimeout(() => {
+      titleScreen.style.display = 'none';
+      startTime = performance.now();
+      gameLoop();
+    }, 5000);
   })
   .catch(err => {
     console.error(err);
@@ -161,8 +182,8 @@ function spawnNote(noteData) {
     const targetLane = Math.max(0, Math.min(3, laneIndex + shift));
 
     function animateSlideTransition(noteElement) {
-      noteElement.style.transition = "left 0.3s ease";
-      noteElement.style.left = (shift > 0 ? 100 : -100) + "%";
+      noteElement.style.transition = "left 0.3s ease, transform 0.3s ease";
+      noteElement.style.transform = "translateX(" + (shift * 100) + "%)";
     }
 
     function animate() {
@@ -175,7 +196,7 @@ function spawnNote(noteData) {
       if (!slideDone && pos > laneHeight / 2) {
         animateSlideTransition(note);
         lanes[targetLane].appendChild(note);
-        note.style.left = "0";
+        note.style.transform = "translateX(0)";
         laneIndex = targetLane;
         slideDone = true;
       }
