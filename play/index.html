@@ -221,6 +221,27 @@
     }
 
     /* #shareButtons and button styles removed */
+
+    #resultButtons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 50px;
+    }
+
+    #resultButtons button {
+      font-size: 1.5rem;
+      background-color: #1da1f2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #resultButtons button:hover {
+      background-color: #0d8ddb;
+    }
   </style>
 </head>
 <body>
@@ -265,7 +286,10 @@
 
 <div id="resultOverlay" style="display:none;">
   <div id="finalScoreTitle">Score<br>0</div>
-  <button id="shareXButton">Xで結果をシェア</button>
+  <div id="resultButtons">
+    <button id="shareXButton">Xで結果をシェア</button>
+    <button id="replayButton">もう一度プレイ</button>
+  </div>
 </div>
 
 <audio id="resultBGM" src="bgm.mp3" loop></audio>
@@ -581,10 +605,13 @@ document.addEventListener('keydown', e => {
 });
 
 document.getElementById('shareXButton').addEventListener('click', () => {
-  const url = encodeURIComponent(location.href);
   const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓`);
-  const shareUrl = `https://x.com/intent/tweet?text=${text}%20${url}`;
+  const shareUrl = `https://x.com/intent/tweet?text=${text}%20https://わためぇ自由研究.wsn0672.org`;
   window.open(shareUrl, '_blank');
+});
+
+document.getElementById('replayButton').addEventListener('click', () => {
+  window.location.href = '/select.html';
 });
 </script>
 </body>
