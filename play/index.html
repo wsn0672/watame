@@ -279,7 +279,7 @@
   </div>
 </div>
 
-<audio id="resultBGM" src="/musics/bgm.mp3" loop></audio>
+<audio id="resultBGM" src="bgm.mp3" loop></audio>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -384,7 +384,7 @@ document.addEventListener('keydown', e => {
     const timeDiff = now - closestNoteTime;
 
     if (closestDistance < 100) {  // 判定を甘く (±1個分ぐらい)
-      const baseScore = 1000;
+      const baseScore = 2000;
       const msDiff = Math.abs(Math.round(timeDiff));
       let noteScore = baseScore - (msDiff * 10);
 
