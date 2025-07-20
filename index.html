@@ -22,6 +22,9 @@
 
 </head>
 <body>
+<div id="mobileWarning" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; text-align: center; z-index: 9999;">
+  このサイトはPCでの表示を推奨しています<br>スマホでは正しく動作しない可能性があります
+</div>
   <header>
     <h1>wsn0672の作品 #わためと自由研究2025</h1>
   </header>
@@ -54,6 +57,9 @@
 
 <script>
   const uaButton = document.getElementById('copyUaBtn');
+  if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    document.getElementById('mobileWarning').style.display = 'flex';
+  }
   uaButton.addEventListener('click', () => {
     navigator.clipboard.writeText(navigator.userAgent)
       .then(() => {
