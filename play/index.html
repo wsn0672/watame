@@ -345,6 +345,8 @@ function spawnNote(noteData) {
   const judgmentLine = lanes[laneIndex].querySelector('.judgeline');
   const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
+  const laneHeight = lanes[laneIndex].offsetHeight;
+
   // const nowTime = performance.now() - startTime;
   // const timeUntilHit = noteData.time - nowTime;
   // const speed = targetY / timeUntilHit;
