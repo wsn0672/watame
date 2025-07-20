@@ -47,22 +47,27 @@
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid white;
       position: relative;
-      overflow: hidden;
+      perspective: 800px; /* 3D遠近感のため追加 */
+      overflow: visible; /* ノーツをレーン外にも表示 */
     }
     .note {
       position: absolute;
-      top: -30px;
+      bottom: 0; /* 下端から始める */
       left: 0;
       width: 100%;
       height: 30px;
       background: #ff90b3;
+      transform-style: preserve-3d; /* 3D変形を有効化 */
+      transform-origin: center bottom; /* 回転軸を底部に */
+      backface-visibility: hidden; /* 裏面非表示 */
+      will-change: transform;
     }
   </style>
 </head>
 <body>
 
 <!-- 背景動画 -->
-<video id="bgVideo" autoplay muted loop playsinline controls>
+<video id="bgVideo" autoplay muted loop playsinline>
   <source id="bgSource" src="" type="video/mp4" />
 </video>
 
@@ -76,8 +81,7 @@
 
 <script>
 const params = new URLSearchParams(location.search);
-const song = params.get('song') || "default.mp4";
-const chartFile = params.get('chart') || "default.json";
+const song = params.get('song');
 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
@@ -85,18 +89,16 @@ bgSource.src = "/musics/" + song;
 bgVideo.load();
 bgVideo.play();
 
-const lanes = document.querySelectorAll('.lane');
-let chart = [];
-let startTime = 0;
+// 簡易譜面例（後でJSON読み込みに置き換える）
+const chart = [
+  { time: 1000, lane: 0 },
+  { time: 1500, lane: 1 },
+  { time: 2000, lane: 2 },
+  { time: 2500, lane: 3 },
+];
 
-// JSON譜面ファイルを読み込んで使用
-fetch("/notes/" + chartFile)
-  .then(res => res.json())
-  .then(data => {
-    chart = data;
-    startTime = performance.now();
-    gameLoop();
-  });
+const startTime = performance.now();
+const lanes = document.querySelectorAll('.lane');
 
 function spawnNote(laneIndex, delay) {
   const note = document.createElement('div');
@@ -104,16 +106,21 @@ function spawnNote(laneIndex, delay) {
   lanes[laneIndex].appendChild(note);
 
   const laneHeight = 400;
-  const speed = laneHeight / delay; // 指定された時間で到達
+  const start = performance.now();
 
-  let start = performance.now();
   function animate() {
-    let now = performance.now();
-    let elapsed = now - start;
-    let pos = elapsed * speed;
-    note.style.top = pos + 'px';
+    const now = performance.now();
+    const elapsed = now - start;
+    const progress = elapsed / delay;
 
-    if (pos < laneHeight) {
+    if (progress < 1) {
+      // 奥から手前に降りるイメージでZ軸縮小しながら移動
+      const posY = laneHeight * progress; // 下から上への移動を逆にするので bottomスタイルと合わせる
+      const scaleZ = 1 - progress * 0.7; // 奥から手前に来るにつれて拡大
+      const translateZ = -300 * (1 - progress); // 奥から手前へZ移動
+
+      note.style.bottom = posY + 'px';
+      note.style.transform = `translateZ(${translateZ}px) scaleZ(${scaleZ})`;
       requestAnimationFrame(animate);
     } else {
       note.remove();
@@ -125,14 +132,18 @@ function spawnNote(laneIndex, delay) {
 function gameLoop() {
   const now = performance.now() - startTime;
 
-  while (chart.length > 0 && chart[0].time <= now) {
-    const note = chart.shift();
-    const timeToHit = 2000; // ノーツが降りる時間 (ms)
-    spawnNote(note.lane, timeToHit);
+  for (let i = 0; i < chart.length; i++) {
+    if (chart[i].time <= now) {
+      spawnNote(chart[i].lane, 2000);
+      chart.splice(i, 1);
+      i--;
+    }
   }
 
   requestAnimationFrame(gameLoop);
 }
+
+gameLoop();
 </script>
 
 </body>
