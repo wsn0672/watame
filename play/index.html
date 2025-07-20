@@ -312,7 +312,7 @@ function gameLoop() {
   const now = performance.now() - startTime;
 
   for (let i = 0; i < chart.length; i++) {
-    if (chart[i].time <= now) {
+    if (chart[i].time - 1000 <= now) {
       spawnNote(chart[i]);
       chart.splice(i, 1);
       i--;
