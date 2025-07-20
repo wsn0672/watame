@@ -443,9 +443,6 @@ fetch("/notes/" + chartFile)
     let countdown = 3;
     loadingScreen.textContent = countdown;
 
-    startTime = performance.now(); // 曲開始（MV再生）を基準に
-    gameLoop(); // ノーツ出現チェックはカウントダウン中も継続
-
     const countdownInterval = setInterval(() => {
       countdown--;
       if (countdown > 0) {
@@ -455,6 +452,8 @@ fetch("/notes/" + chartFile)
         loadingScreen.style.display = 'none';
         bgVideo.currentTime = 0;
         bgVideo.play(); // 曲再生はカウントダウン終了後
+        startTime = performance.now(); // 曲開始（MV再生）と完全同期
+        gameLoop();
       }
     }, 1000);
   })
