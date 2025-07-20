@@ -175,6 +175,7 @@
       height: 100vh;
       background: rgba(0,0,0,0.9);
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       color: white;
@@ -188,36 +189,51 @@
       transform: translateY(100%);
     }
 
-    #finalScore {
-      opacity: 0;
-      transition: opacity 1.5s ease 2s;
-    }
-
-    #resultOverlay.show #finalScore {
-      opacity: 1;
-    }
-
-    #finalScoreLabel {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
+    #finalScoreTitle,
+    #finalScoreValue,
     #shareButton {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      padding: 0.5rem 1.5rem;
-      background: #1da1f2;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
       opacity: 0;
       transition: opacity 1s ease;
     }
 
-    #shareButton.show {
+    #resultOverlay.show #finalScoreTitle {
       opacity: 1;
+      transition-delay: 2s;
+    }
+
+    #resultOverlay.show #finalScoreValue {
+      opacity: 1;
+      transition-delay: 3s;
+    }
+
+    #resultOverlay.show #shareButton {
+      opacity: 1;
+      transition-delay: 4s;
+    }
+
+    #finalScoreTitle {
+      font-size: 2rem;
+      margin-bottom: 0.5em;
+    }
+
+    #finalScoreValue {
+      font-size: 6rem;
+      margin-bottom: 1em;
+    }
+
+    #shareButton {
+      background-color: #1DA1F2;
+      border: none;
+      padding: 0.8em 1.5em;
+      color: white;
+      font-size: 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #shareButton:hover {
+      background-color: #0d95e8;
     }
   </style>
 </head>
@@ -263,14 +279,10 @@
 <div id="scoreDisplay">0</div>
 
 <div id="resultOverlay">
-  <div id="finalScoreContainer">
-    <div id="finalScoreLabel">Score</div>
-    <div id="finalScore"></div>
-    <button id="shareButton" style="display:none;">Xでシェア</button>
-  </div>
+  <div id="finalScoreTitle">Score</div>
+  <div id="finalScoreValue">0</div>
+  <button id="shareButton">Xでシェア</button>
 </div>
-
-<audio id="resultBGM" src="/musics/bgm.mp3" loop></audio>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -279,12 +291,7 @@ const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 
 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
-const resultBGM = document.getElementById('resultBGM');
-let forcedEnd = false;
 
-const shareButton = document.getElementById('shareButton');
-
-// Get cached MV URL from sessionStorage
 const mvUrl = sessionStorage.getItem('mvUrl');
 
 if (mvUrl) {
@@ -307,13 +314,19 @@ let score = 0;
 const scoreDisplay = document.getElementById('scoreDisplay');
 
 const resultOverlay = document.getElementById('resultOverlay');
-const finalScore = document.getElementById('finalScore');
+const finalScoreTitle = document.getElementById('finalScoreTitle');
+const finalScoreValue = document.getElementById('finalScoreValue');
+const shareButton = document.getElementById('shareButton');
+
 let resultShown = false;
+let bgmAudio = new Audio('bgm.mp3');
+
+scoreDisplay.style.display = 'none';
 
 function showJudgment(text) {
   judgmentText.textContent = text;
   judgmentText.style.animation = 'none';
-  void judgmentText.offsetWidth; // force reflow to restart animation
+  void judgmentText.offsetWidth;
   judgmentText.style.animation = 'slideFadeOut 0.5s ease forwards';
 }
 
@@ -449,10 +462,6 @@ function spawnNote(noteData) {
 
   const laneHeight = lanes[laneIndex].offsetHeight;
 
-  // const nowTime = performance.now() - startTime;
-  // const timeUntilHit = noteData.time - nowTime;
-  // const speed = targetY / timeUntilHit;
-
   const approachTime = 1000; // 1秒で判定エリアに到達
   const speed = targetY / approachTime;
 
@@ -540,8 +549,8 @@ function spawnNote(noteData) {
 }
 
 function gameLoop() {
-  if (forcedEnd) return;
   const now = performance.now() - startTime;
+
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time - 1000 <= now) {
       spawnNote(chart[i]);
@@ -549,62 +558,42 @@ function gameLoop() {
       i--;
     }
   }
+
   requestAnimationFrame(gameLoop);
 }
+
+function showResult() {
+  lanes.forEach(lane => lane.style.display = 'none');
+
+  resultOverlay.style.display = 'flex';
+  setTimeout(() => resultOverlay.classList.add('show'), 10);
+
+  let displayedScore = 0;
+  const increment = Math.max(1, Math.floor(score / 60));
+  finalScoreValue.textContent = '0';
+
+  const interval = setInterval(() => {
+    displayedScore += increment;
+    if (displayedScore >= score) {
+      displayedScore = score;
+      clearInterval(interval);
+    }
+    finalScoreValue.textContent = displayedScore.toLocaleString();
+  }, 30);
+
+  bgmAudio.play();
+}
+
+shareButton.addEventListener('click', () => {
+  const tweetText = encodeURIComponent(`このゲームで${score.toLocaleString()}点とったよ！みんなもやってみて！`);
+  const tweetUrl = encodeURIComponent(location.href);
+  const url = `https://twitter.com/intent/tweet?text=${tweetText}&url=${tweetUrl}`;
+  window.open(url, '_blank', 'noopener');
+});
 
 bgVideo.addEventListener('timeupdate', () => {
   if (!resultShown && bgVideo.duration - bgVideo.currentTime <= 3) {
     resultShown = true;
-    showResult();
-  }
-});
-
-function showResult() {
-  document.getElementById('lanes').style.display = 'none';
-  resultOverlay.style.display = 'flex';
-  setTimeout(() => resultOverlay.classList.add('show'), 10);
-
-  const finalScoreLabel = document.getElementById('finalScoreLabel');
-  const finalScoreDiv = document.getElementById('finalScore');
-  
-  finalScoreLabel.style.opacity = '0';
-  finalScoreDiv.textContent = '';
-  shareButton.style.display = 'none';
-  shareButton.classList.remove('show');
-
-  // Show "Score"
-  setTimeout(() => {
-    finalScoreLabel.style.opacity = '1';
-  }, 500);
-
-  // Show score number after "Score" label
-  setTimeout(() => {
-    finalScoreDiv.textContent = score;
-  }, 1500);
-
-  // Show share button after score
-  setTimeout(() => {
-    shareButton.style.display = 'block';
-    requestAnimationFrame(() => {
-      shareButton.classList.add('show');
-    });
-  }, 2500);
-
-  bgVideo.pause();
-  resultBGM.currentTime = 0;
-  resultBGM.play();
-}
-
-shareButton.addEventListener('click', () => {
-  const shareText = `${score}点とったよ！みんなもやってみて！\nhttps://わためぇ自由研究.wsn0672.org/`;
-  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-  window.open(shareUrl, '_blank');
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key.toLowerCase() === 'r') {
-    forcedEnd = true;
-    bgVideo.pause();
     showResult();
   }
 });
