@@ -154,7 +154,7 @@
 </video>
 
 <!-- ローディング画面 -->
-<div id="loadingScreen">譜面を読み込んでいます...</div>
+<div id="loadingScreen">3</div>
 
 <!-- レーン -->
 <div id="lanes">
@@ -194,30 +194,17 @@ const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
 
-const videoCache = new Map();
+// Get cached MV URL from sessionStorage
+const mvUrl = sessionStorage.getItem('mvUrl');
 
-function preloadMV(src) {
-  return new Promise(resolve => {
-    if (videoCache.has(src)) {
-      resolve();
-      return;
-    }
-    const video = document.createElement('video');
-    video.src = src;
-    video.preload = "auto";
-    video.onloadeddata = () => {
-      videoCache.set(src, video);
-      resolve();
-    };
-    video.load();
-  });
-}
-
-const mvPath = "/musics/" + song;
-preloadMV(mvPath).then(() => {
+if (mvUrl) {
+  bgSource.src = mvUrl;
+  bgVideo.load();
+} else {
+  const mvPath = "/musics/" + song;
   bgSource.src = mvPath;
   bgVideo.load();
-});
+}
 
 const lanes = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('#lanes .key-label');
@@ -303,13 +290,22 @@ fetch("/notes/" + chartFile)
   })
   .then(data => {
     chart = data;
-    setTimeout(() => {
-      loadingScreen.style.display = 'none';
-      bgVideo.currentTime = 0;
-      bgVideo.play();
-      startTime = performance.now();
-      gameLoop();
-    }, 5000); // 5秒間表示
+    let countdown = 3;
+    loadingScreen.textContent = countdown;
+
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        loadingScreen.textContent = countdown;
+      } else {
+        clearInterval(countdownInterval);
+        loadingScreen.style.display = 'none';
+        bgVideo.currentTime = 0;
+        bgVideo.play();
+        startTime = performance.now();
+        gameLoop();
+      }
+    }, 1000);
   })
   .catch(err => {
     console.error(err);
