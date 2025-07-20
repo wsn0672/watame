@@ -145,10 +145,14 @@
       }
     }
 
-    // 動画のプリロード(fetchを利用)
+    const videoBlobs = {};  // 各動画のBlob URL
+
     preloadVideos.forEach(src => {
-      fetch(src, { cache: "force-cache" })
-        .then(() => {
+      fetch(src)
+        .then(res => res.blob())
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          videoBlobs[src] = blobUrl;
           checkPreloadComplete();
         })
         .catch(() => {
@@ -165,8 +169,8 @@ document.querySelectorAll('.song-list button').forEach(button => {
   button.addEventListener('mouseenter', () => {
     const mv = button.getAttribute('data-mv');
     const chorus = parseFloat(button.getAttribute('data-chorus')) || 0;
-    if (mv) {
-      bgSource.src = mv;
+    if (mv && videoBlobs[mv]) {
+      bgSource.src = videoBlobs[mv];
       bgVideo.load();
 
       bgVideo.muted = true;  // いったんミュートにする
