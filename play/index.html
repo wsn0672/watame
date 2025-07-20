@@ -175,7 +175,6 @@
       height: 100vh;
       background: rgba(0,0,0,0.9);
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       color: white;
@@ -183,58 +182,51 @@
       font-weight: bold;
       z-index: 10000;
       transition: transform 2s ease;
+      flex-direction: column;
     }
 
     #resultOverlay.show {
       transform: translateY(100%);
     }
 
-    #finalScoreTitle,
-    #finalScoreValue,
-    #shareButton {
+    #finalScore {
       opacity: 0;
-      transition: opacity 1s ease;
+      transition: opacity 1.5s ease 2s;
     }
 
-    #resultOverlay.show #finalScoreTitle {
+    #resultOverlay.show #finalScore {
       opacity: 1;
-      transition-delay: 2s;
     }
 
-    #resultOverlay.show #finalScoreValue {
-      opacity: 1;
-      transition-delay: 3s;
-    }
-
-    #resultOverlay.show #shareButton {
-      opacity: 1;
-      /* transition-delay: 4s; 削除またはコメントアウト */
-      display: inline-block;
+    #finalScoreTitle, #finalScoreValue, #shareButtons {
+      color: white;
+      font-weight: bold;
+      font-family: monospace;
+      text-align: center;
+      user-select: none;
     }
 
     #finalScoreTitle {
-      font-size: 2rem;
-      margin-bottom: 0.5em;
+      font-size: 3rem;
     }
 
     #finalScoreValue {
-      font-size: 6rem;
-      margin-bottom: 1em;
+      font-size: 5rem;
+      margin-top: 10px;
     }
 
-    #shareButton {
-      background-color: #1DA1F2;
-      border: none;
-      padding: 0.8em 1.5em;
-      color: white;
+    #shareButtons button {
       font-size: 1.5rem;
-      border-radius: 8px;
+      background-color: #1DA1F2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
     }
 
-    #shareButton:hover {
-      background-color: #0d95e8;
+    #shareButtons button:hover {
+      background-color: #0d8ddb;
     }
   </style>
 </head>
@@ -280,10 +272,14 @@
 <div id="scoreDisplay">0</div>
 
 <div id="resultOverlay">
-  <div id="finalScoreTitle">Score</div>
-  <div id="finalScoreValue">0</div>
-  <button id="shareButton">Xでシェア</button>
+  <div id="finalScoreTitle" style="opacity:0; transition: opacity 1s ease;">Score</div>
+  <div id="finalScoreValue" style="opacity:0; transition: opacity 1s ease;">0</div>
+  <div id="shareButtons" style="opacity:0; transition: opacity 1s ease; margin-top: 30px;">
+    <button id="shareX">Xでシェアする</button>
+  </div>
 </div>
+
+<audio id="resultBGM" src="/musics/bgm.mp3" loop></audio>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -292,7 +288,12 @@ const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 
 
 const bgVideo = document.getElementById('bgVideo');
 const bgSource = document.getElementById('bgSource');
+const resultBGM = document.getElementById('resultBGM');
+let forcedEnd = false;
 
+const lanes = document.getElementById('lanes');
+
+// Get cached MV URL from sessionStorage
 const mvUrl = sessionStorage.getItem('mvUrl');
 
 if (mvUrl) {
@@ -304,7 +305,7 @@ if (mvUrl) {
   bgVideo.load();
 }
 
-const lanes = document.querySelectorAll('.lane');
+const lanesElements = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('.lane-label');
 const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
 
@@ -317,22 +318,13 @@ const scoreDisplay = document.getElementById('scoreDisplay');
 const resultOverlay = document.getElementById('resultOverlay');
 const finalScoreTitle = document.getElementById('finalScoreTitle');
 const finalScoreValue = document.getElementById('finalScoreValue');
-const shareButton = document.getElementById('shareButton');
-
-// シェアボタンを最初は非表示・非アクティブにする
-shareButton.style.display = 'none';
-shareButton.style.opacity = '0';
-shareButton.style.pointerEvents = 'none';
-
+const shareButtons = document.getElementById('shareButtons');
 let resultShown = false;
-let bgmAudio = new Audio('bgm.mp3');
-
-scoreDisplay.style.display = 'none';
 
 function showJudgment(text) {
   judgmentText.textContent = text;
   judgmentText.style.animation = 'none';
-  void judgmentText.offsetWidth;
+  void judgmentText.offsetWidth; // force reflow to restart animation
   judgmentText.style.animation = 'slideFadeOut 0.5s ease forwards';
 }
 
@@ -345,15 +337,6 @@ function triggerHitEffect(laneIndex) {
 }
 
 document.addEventListener('keydown', e => {
-  // Rキーで即リザルト表示
-  if (e.key.toLowerCase() === 'r') {
-    if (!resultShown) {
-      resultShown = true;
-      showResult();
-      bgVideo.pause();
-    }
-    return;
-  }
   const key = e.key.toLowerCase();
   if (keyMap[key] !== undefined) {
     const index = keyMap[key];
@@ -362,7 +345,7 @@ document.addEventListener('keydown', e => {
     keyDiv.classList.add('key-press');
     setTimeout(() => keyDiv.classList.remove('key-press'), 100);
 
-    const lane = lanes[index];
+    const lane = lanesElements[index];
     const notes = lane.querySelectorAll('.note');
 
     if (notes.length === 0) {
@@ -401,7 +384,7 @@ document.addEventListener('keydown', e => {
     const timeDiff = now - closestNoteTime;
 
     if (closestDistance < 100) {  // 判定を甘く (±1個分ぐらい)
-      const baseScore = 2000;
+      const baseScore = 1000;
       const msDiff = Math.abs(Math.round(timeDiff));
       let noteScore = baseScore - (msDiff * 10);
 
@@ -437,10 +420,11 @@ fetch("/notes/" + chartFile)
       countdown--;
       if (countdown > 0) {
         loadingScreen.textContent = countdown;
+        scoreDisplay.style.display = 'none';
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        scoreDisplay.style.display = 'none';
+        scoreDisplay.style.display = 'block';
         bgVideo.currentTime = 0;
         bgVideo.play();
         startTime = performance.now();
@@ -472,10 +456,14 @@ function spawnNote(noteData) {
   const note = document.createElement('div');
   note.classList.add('note', noteType);
 
-  const judgmentLine = lanes[laneIndex].querySelector('.judgeline');
+  const judgmentLine = lanesElements[laneIndex].querySelector('.judgeline');
   const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
-  const laneHeight = lanes[laneIndex].offsetHeight;
+  const laneHeight = lanesElements[laneIndex].offsetHeight;
+
+  // const nowTime = performance.now() - startTime;
+  // const timeUntilHit = noteData.time - nowTime;
+  // const speed = targetY / timeUntilHit;
 
   const approachTime = 1000; // 1秒で判定エリアに到達
   const speed = targetY / approachTime;
@@ -483,7 +471,7 @@ function spawnNote(noteData) {
   // 譜面のタイムスタンプをdatasetに保存
   note.dataset.time = noteData.time;
 
-  lanes[laneIndex].appendChild(note);
+  lanesElements[laneIndex].appendChild(note);
 
   // const approachTime = 1000; // 1秒で到達
   
@@ -512,7 +500,7 @@ function spawnNote(noteData) {
         note.style.left = (shift * 100) + "%";
 
         setTimeout(() => {
-          lanes[targetLane].appendChild(note);
+          lanesElements[targetLane].appendChild(note);
           note.style.transition = "transform 0.3s ease";
           note.style.left = "0";
           note.style.transform = "translateX(0)";
@@ -564,8 +552,8 @@ function spawnNote(noteData) {
 }
 
 function gameLoop() {
+  if (forcedEnd) return;
   const now = performance.now() - startTime;
-
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time - 1000 <= now) {
       spawnNote(chart[i]);
@@ -573,48 +561,60 @@ function gameLoop() {
       i--;
     }
   }
-
   requestAnimationFrame(gameLoop);
 }
-
-function showResult() {
-  lanes.forEach(lane => lane.style.display = 'none');
-
-  resultOverlay.style.display = 'flex';
-  setTimeout(() => resultOverlay.classList.add('show'), 10);
-
-  let displayedScore = 0;
-  const increment = Math.max(1, Math.floor(score / 60));
-  finalScoreValue.textContent = '0';
-
-  const interval = setInterval(() => {
-    displayedScore += increment;
-    if (displayedScore >= score) {
-      displayedScore = score;
-      clearInterval(interval);
-      // 停止タイミングで動画を停止
-      bgVideo.pause();
-      // シェアボタンを確実に表示・有効化
-      shareButton.style.display = 'inline-block';
-      shareButton.style.opacity = '1';
-      shareButton.style.pointerEvents = 'auto';
-    }
-    finalScoreValue.textContent = displayedScore.toLocaleString();
-  }, 30);
-
-  bgmAudio.play();
-}
-
-shareButton.addEventListener('click', () => {
-  const tweetText = encodeURIComponent(`このゲームで${score.toLocaleString()}点とったよ！みんなもやってみて！`);
-  const tweetUrl = encodeURIComponent(location.href);
-  const url = `https://twitter.com/intent/tweet?text=${tweetText}&url=${tweetUrl}`;
-  window.open(url, '_blank', 'noopener');
-});
 
 bgVideo.addEventListener('timeupdate', () => {
   if (!resultShown && bgVideo.duration - bgVideo.currentTime <= 3) {
     resultShown = true;
+    showResult();
+  }
+});
+
+function showResult() {
+  lanes.style.display = 'none'; // レーン非表示
+  scoreDisplay.style.display = 'none'; // プレイ中のスコア非表示
+  resultOverlay.style.display = 'flex';
+
+  // 黒幕をゆっくり降ろす
+  setTimeout(() => {
+    resultOverlay.classList.add('show');
+    resultBGM.currentTime = 0;
+    resultBGM.play();
+
+    // Score タイトルフェードイン
+    const title = document.getElementById('finalScoreTitle');
+    const value = document.getElementById('finalScoreValue');
+    const share = document.getElementById('shareButtons');
+
+    title.style.opacity = '1';
+
+    // スコア値フェードイン (タイトルの後)
+    setTimeout(() => {
+      value.textContent = score;
+      value.style.opacity = '1';
+    }, 1000);
+
+    // シェアボタンフェードイン (スコア表示の後)
+    setTimeout(() => {
+      share.style.opacity = '1';
+    }, 2500);
+  }, 10);
+
+  bgVideo.pause();
+}
+
+document.getElementById('shareX').addEventListener('click', () => {
+  const url = encodeURIComponent(location.href);
+  const text = encodeURIComponent(`このゲームで${score}点とったよ！みんなもやってみて！`);
+  const shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+  window.open(shareUrl, '_blank', 'noopener');
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === 'r') {
+    forcedEnd = true;
+    bgVideo.pause();
     showResult();
   }
 });
