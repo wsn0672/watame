@@ -570,7 +570,7 @@ function showResult() {
   const finalScoreLabel = document.getElementById('finalScoreLabel');
   const finalScore = document.getElementById('finalScore');
   const shareButton = document.getElementById('shareButton');
-  // Start result BGM before showing overlay
+  // Start result BGM just before overlay slides in
   resultBGM.currentTime = 0;
   resultBGM.play();
   resultOverlay.style.display = 'flex';
@@ -578,19 +578,19 @@ function showResult() {
 
   setTimeout(() => {
     finalScoreLabel.style.opacity = '1';
-  }, 500);
+  }, 1500);
 
   setTimeout(() => {
     finalScore.textContent = score;
     finalScore.style.opacity = '1';
-  }, 1500);
+  }, 2500);
 
   setTimeout(() => {
     shareButton.style.display = 'inline-block';
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       shareButton.classList.add('show');
-    }, 50);
-  }, 2500);
+    });
+  }, 3500);
 }
 
 document.addEventListener('keydown', e => {
