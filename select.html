@@ -116,7 +116,7 @@ document.querySelectorAll('.song-list button').forEach(button => {
 
   button.addEventListener('click', () => {
     const file = button.getAttribute('data-file');
-    window.location.href = `/game.html?song=${encodeURIComponent(file)}`;
+    window.location.href = `/play?song=${encodeURIComponent(file)}`;
   });
 });
   </script>
