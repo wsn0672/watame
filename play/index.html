@@ -194,23 +194,32 @@
       user-select: none;
     }
 
-    #finalScoreTitle {
-      font-size: 3rem;
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
-
-    #finalScoreValue {
-      font-size: 5rem;
-      margin-top: 10px;
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
-
     #shareButtons {
       margin-top: 30px;
       opacity: 0;
       transition: opacity 1s ease;
+      max-width: 90vw;       /* 画面からはみ出さないように */
+      display: flex;         /* 横並び */
+      justify-content: center; /* 中央揃え */
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #finalScoreTitle {
+      font-size: 3rem;
+      opacity: 0;
+      transition: opacity 1s ease;
+      display: block;      /* ブロック表示にして改行確実に */
+      margin-bottom: 10px; /* 数字との間のスペース */
+    }
+
+    #finalScoreValue {
+      font-size: 5rem;
+      margin-top: 0;       /* タイトルとの隙間はタイトル側のmarginで調整 */
+      opacity: 0;
+      transition: opacity 1s ease;
+      display: block;      /* ブロック表示 */
+      text-align: center;
     }
 
     #shareButtons button {
@@ -269,7 +278,7 @@
 <div id="judgmentText"></div>
 
 <div id="resultOverlay" style="display:none;">
-  <div id="finalScoreTitle">Score<br></div>
+  <div id="finalScoreTitle">Score</div>
   <div id="finalScoreValue">0</div>
   <div id="shareButtons">
     <button id="shareX">Xでシェアする</button>
