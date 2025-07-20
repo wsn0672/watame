@@ -67,8 +67,16 @@
       left: 0;
       width: 100%;
       height: 30px;
-      background: #ff90b3;
       border-radius: 4px;
+    }
+    .note.normal {
+      background: #4aaaff;
+    }
+    .note.double {
+      background: #ffaa00;
+    }
+    .note.slide {
+      background: #c060ff;
     }
   </style>
 </head>
@@ -125,19 +133,35 @@ fetch("/notes/" + chartFile)
     alert("譜面ファイルが見つかりませんでした: " + chartFile);
   });
 
-// ゲームループ・ノーツ生成は変更なし
-function spawnNote(laneIndex) {
+// ノーツ生成
+function spawnNote(noteData) {
+  let laneIndex = noteData.lane;
+  const noteType = noteData.type || "normal";
+
   const note = document.createElement('div');
-  note.classList.add('note');
+  note.classList.add('note', noteType);
   lanes[laneIndex].appendChild(note);
 
-  const speed = 0.4; // ピクセル毎ミリ秒
+  const laneHeight = lanes[laneIndex].offsetHeight;
+  const speed = laneHeight / 2000; // 2秒で到達
+
+  let start = performance.now();
   function animate() {
-    const elapsed = performance.now() - startTime;
-    const pos = elapsed * speed;
+    let now = performance.now();
+    let elapsed = now - start;
+    let pos = elapsed * speed;
     note.style.top = pos + 'px';
 
-    if (pos < lanes[laneIndex].offsetHeight) {
+    if (noteType === "slide" && Math.random() < 0.01) { // 簡易的なレーンスライド
+      const shift = Math.random() < 0.5 ? -1 : 1;
+      const newLane = Math.max(0, Math.min(3, laneIndex + shift));
+      if (newLane !== laneIndex) {
+        lanes[newLane].appendChild(note);
+        laneIndex = newLane;
+      }
+    }
+
+    if (pos < laneHeight) {
       requestAnimationFrame(animate);
     } else {
       note.remove();
@@ -151,7 +175,7 @@ function gameLoop() {
 
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time <= now) {
-      spawnNote(chart[i].lane);
+      spawnNote(chart[i]);
       chart.splice(i, 1);
       i--;
     }
