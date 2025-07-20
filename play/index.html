@@ -196,6 +196,35 @@
     #resultOverlay.show #finalScore {
       opacity: 1;
     }
+
+    #finalScoreContainer {
+      text-align: center;
+    }
+    #finalScoreLabel {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      transition: opacity 1s ease;
+    }
+    #finalScore {
+      font-size: 3rem;
+      transition: opacity 1s ease 1s;
+    }
+    #shareButton {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      padding: 0.5rem 1.5rem;
+      background: #1da1f2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 1s ease 2s;
+    }
+    #shareButton.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -240,10 +269,14 @@
 <div id="scoreDisplay">0</div>
 
 <div id="resultOverlay">
-  <div id="finalScore"></div>
+  <div id="finalScoreContainer">
+    <div id="finalScoreLabel" style="opacity: 0;">Score</div>
+    <div id="finalScore" style="opacity: 0;"></div>
+    <button id="shareButton" style="display: none;">Xでシェア</button>
+  </div>
 </div>
 
-<audio id="resultBGM" src="/musics/bgm.mp3" loop></audio>
+<audio id="resultBGM" src="bgm.mp3" loop></audio>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -375,6 +408,7 @@ fetch("/notes/" + chartFile)
     chart = data;
     let countdown = 3;
     loadingScreen.textContent = countdown;
+    scoreDisplay.style.display = 'none';
 
     const countdownInterval = setInterval(() => {
       countdown--;
@@ -531,12 +565,31 @@ bgVideo.addEventListener('timeupdate', () => {
 });
 
 function showResult() {
-  resultOverlay.style.display = 'flex';
-  setTimeout(() => resultOverlay.classList.add('show'), 10);
-  finalScore.textContent = `スコア: ${score}`;
+  document.getElementById('lanes').style.display = 'none';
   bgVideo.pause();
   resultBGM.currentTime = 0;
   resultBGM.play();
+  const finalScoreLabel = document.getElementById('finalScoreLabel');
+  const finalScore = document.getElementById('finalScore');
+  const shareButton = document.getElementById('shareButton');
+  resultOverlay.style.display = 'flex';
+  setTimeout(() => resultOverlay.classList.add('show'), 10);
+
+  setTimeout(() => {
+    finalScoreLabel.style.opacity = '1';
+  }, 500);
+
+  setTimeout(() => {
+    finalScore.textContent = score;
+    finalScore.style.opacity = '1';
+  }, 1500);
+
+  setTimeout(() => {
+    shareButton.style.display = 'block';
+    requestAnimationFrame(() => {
+      shareButton.classList.add('show');
+    });
+  }, 2500);
 }
 
 document.addEventListener('keydown', e => {
@@ -545,6 +598,13 @@ document.addEventListener('keydown', e => {
     bgVideo.pause();
     showResult();
   }
+});
+
+const shareButton = document.getElementById('shareButton');
+shareButton.addEventListener('click', () => {
+  const shareText = `${score}点とったよ！みんなもやってみて！ https://わためぇ自由研究.wsn0672.org/`;
+  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+  window.open(shareUrl, '_blank');
 });
 </script>
 
