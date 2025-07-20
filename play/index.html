@@ -116,8 +116,18 @@
       font-family: 'Noto Sans JP', sans-serif;
       text-shadow: 0 0 10px black;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      opacity: 1;
+      transition: none;
+    }
+    @keyframes slideFadeOut {
+      0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50px);
+      }
     }
     #loadingScreen {
       position: fixed;
@@ -218,10 +228,9 @@ const hitEffects = document.querySelectorAll('.hitEffect');
 
 function showJudgment(text) {
   judgmentText.textContent = text;
-  judgmentText.style.opacity = '1';
-  setTimeout(() => {
-    judgmentText.style.opacity = '0';
-  }, 500);
+  judgmentText.style.animation = 'none';
+  void judgmentText.offsetWidth; // force reflow to restart animation
+  judgmentText.style.animation = 'slideFadeOut 0.5s ease forwards';
 }
 
 function triggerHitEffect(laneIndex) {
@@ -338,9 +347,11 @@ function spawnNote(noteData) {
 
   lanes[laneIndex].appendChild(note);
 
-  const laneHeight = lanes[laneIndex].offsetHeight;
+  const judgmentLine = lanes[laneIndex].querySelector('.judgeline');
+  const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
+
   const approachTime = 1000; // 1秒で到達
-  const speed = laneHeight / approachTime;
+  const speed = targetY / approachTime;
 
   let start = performance.now();
   let slideDone = false;
@@ -360,7 +371,7 @@ function spawnNote(noteData) {
       let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
-      if (!slideDone && pos > laneHeight / 3) { // 1/3あたりに移動開始
+      if (!slideDone && pos > targetY / 3) { // 1/3あたりに移動開始
         // 横スムーズ移動用にleftの数値とトランジション設定
         note.style.transition = "left 0.5s ease, transform 0.5s ease";
         note.style.left = (shift * 100) + "%";
@@ -375,7 +386,7 @@ function spawnNote(noteData) {
         }, 10);
       }
 
-      if (pos < laneHeight) {
+      if (pos < targetY) {
         requestAnimationFrame(animate);
       } else {
         note.remove();
@@ -389,7 +400,7 @@ function spawnNote(noteData) {
       let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
-      if (pos < laneHeight) {
+      if (pos < targetY) {
         requestAnimationFrame(animate);
       } else {
         note.remove();
