@@ -56,7 +56,7 @@ document.addEventListener('keydown', (e) => {
   const key = e.key.toLowerCase();
   if (keyToLane.hasOwnProperty(key)) {
     const time = performance.now() - startTime;
-    notes.push({ time: Math.floor(time), lane: keyToLane[key] });
+    notes.push({ time: Math.floor(time) });
     notesDiv.textContent = JSON.stringify(notes, null, 2);
   }
 });
