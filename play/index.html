@@ -386,7 +386,7 @@ document.addEventListener('keydown', e => {
     const timeDiff = now - closestNoteTime;
 
     if (closestDistance < 100) {  // 判定を甘く (±1個分ぐらい)
-      const baseScore = 1000;
+      const baseScore = 2000;
       const msDiff = Math.abs(Math.round(timeDiff));
       let noteScore = baseScore - (msDiff * 10);
 
