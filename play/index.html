@@ -240,15 +240,16 @@
       background-color: #1da1f2;
       color: white;
       border: none;
-      padding: 10px 10px; /* 上下のパディングを小さく */
+      padding: 10px 20px;
       border-radius: 6px;
       cursor: pointer;
-      height: 44px; /* 高さを統一 */
-      line-height: 24px; /* テキストの縦位置調整 */
+      height: 44px;        /* 高さを統一 */
+      line-height: 24px;   /* テキストの縦位置調整 */
       display: flex;
       align-items: center;
       justify-content: center;
       white-space: nowrap;
+      box-sizing: border-box; /* パディング込みで高さ調整 */
     }
 
     #resultButtons button:hover {
