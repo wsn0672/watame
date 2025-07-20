@@ -97,6 +97,21 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Noto Sans JP', sans-serif;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
@@ -105,6 +120,9 @@
 <video id="bgVideo" autoplay loop playsinline>
   <source id="bgSource" src="" type="video/mp4" />
 </video>
+
+<!-- ローディング画面 -->
+<div id="loadingScreen">譜面を読み込んでいます...</div>
 
 <!-- レーン -->
 <div id="lanes">
@@ -131,6 +149,7 @@ const keyDivs = document.querySelectorAll('#lanes .key-label');
 const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
 
 const judgmentText = document.getElementById('judgmentText');
+const loadingScreen = document.getElementById('loadingScreen');
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -198,9 +217,12 @@ fetch("/notes/" + chartFile)
   })
   .then(data => {
     chart = data;
-    bgVideo.play();
-    startTime = performance.now();
-    gameLoop();
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+      bgVideo.play();
+      startTime = performance.now();
+      gameLoop();
+    }, 5000); // 5秒間表示
   })
   .catch(err => {
     console.error(err);
