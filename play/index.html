@@ -439,6 +439,9 @@ fetch("/notes/" + chartFile)
     let countdown = 3;
     loadingScreen.textContent = countdown;
 
+    startTime = performance.now();
+    gameLoop(); // カウントダウンの時点でゲームループ開始
+
     const countdownInterval = setInterval(() => {
       countdown--;
       if (countdown > 0) {
@@ -447,9 +450,7 @@ fetch("/notes/" + chartFile)
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
         bgVideo.currentTime = 0;
-        bgVideo.play();
-        startTime = performance.now();
-        gameLoop();
+        bgVideo.play(); // 曲再生はカウントダウン終了後
       }
     }, 1000);
   })
