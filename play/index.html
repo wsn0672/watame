@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <title>プレイ - WD!!</title>
+    <link rel="icon" href="/favicon.png" type="image/png" />
+        <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB78MEGS2W"></script>
+    <meta name="description" content="wsn0672の自家製Webサーバー" />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+        <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB78MEGS2W"></script>
+    <meta name="description" content="wsn0672の自家製Webサーバー" />
+    <!-- リセットCSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css" />
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+    }
+    #bgVideo {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      opacity: 0.15;
+      z-index: -1;
+    }
+    #lanes {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+    }
+    .lane {
+      width: 80px;
+      height: 400px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid white;
+      position: relative;
+      overflow: hidden;
+    }
+    .note {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background: #ff90b3;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 背景動画 -->
+<video id="bgVideo" autoplay muted loop playsinline controls>
+  <source id="bgSource" src="" type="video/mp4" />
+</video>
+
+<!-- レーン -->
+<div id="lanes">
+  <div class="lane" data-lane="0"></div>
+  <div class="lane" data-lane="1"></div>
+  <div class="lane" data-lane="2"></div>
+  <div class="lane" data-lane="3"></div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const song = params.get('song') || "default.mp4";
+const chartFile = params.get('chart') || "default.json";
+
+const bgVideo = document.getElementById('bgVideo');
+const bgSource = document.getElementById('bgSource');
+bgSource.src = "/musics/" + song;
+bgVideo.load();
+bgVideo.play();
+
+const lanes = document.querySelectorAll('.lane');
+let chart = [];
+let startTime = 0;
+
+// JSON譜面ファイルを読み込んで使用
+fetch("/notes/" + chartFile)
+  .then(res => res.json())
+  .then(data => {
+    chart = data;
+    startTime = performance.now();
+    gameLoop();
+  });
+
+function spawnNote(laneIndex, delay) {
+  const note = document.createElement('div');
+  note.classList.add('note');
+  lanes[laneIndex].appendChild(note);
+
+  const laneHeight = 400;
+  const speed = laneHeight / delay; // 指定された時間で到達
+
+  let start = performance.now();
+  function animate() {
+    let now = performance.now();
+    let elapsed = now - start;
+    let pos = elapsed * speed;
+    note.style.top = pos + 'px';
+
+    if (pos < laneHeight) {
+      requestAnimationFrame(animate);
+    } else {
+      note.remove();
+    }
+  }
+  animate();
+}
+
+function gameLoop() {
+  const now = performance.now() - startTime;
+
+  while (chart.length > 0 && chart[0].time <= now) {
+    const note = chart.shift();
+    const timeToHit = 2000; // ノーツが降りる時間 (ms)
+    spawnNote(note.lane, timeToHit);
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+</script>
+
+</body>
+</html>
