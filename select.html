@@ -101,7 +101,6 @@
       <div id="progressBar"></div>
     </div>
   </div>
-  <button id="manualPlayButton" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; padding: 20px; background: #ff90b3; color: white; border: none; border-radius: 10px; z-index: 1000;">ここをクリックして動画を再生</button>
   <header>
     <h1>楽曲選択</h1>
   </header>
@@ -163,16 +162,8 @@
 
     // ページロード時に無音で1回だけ再生して自動再生権限を得る
     window.addEventListener('load', () => {
-      const manualPlayButton = document.getElementById('manualPlayButton');
       bgVideo.muted = true;
-      bgVideo.play().catch(() => {
-        manualPlayButton.style.display = 'block';
-        manualPlayButton.addEventListener('click', () => {
-          bgVideo.play().then(() => {
-            manualPlayButton.style.display = 'none';
-          });
-        });
-      });
+      bgVideo.play().catch(() => {});
     });
 document.querySelectorAll('.song-list button').forEach(button => {
   button.addEventListener('mouseenter', () => {
