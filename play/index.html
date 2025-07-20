@@ -220,7 +220,7 @@
       font-weight: bold;
       cursor: pointer;
       opacity: 0;
-      transition: opacity 1s ease 2s;
+      transition: opacity 1s ease;
     }
     #shareButton.show {
       opacity: 1;
@@ -590,7 +590,7 @@ function showResult() {
     requestAnimationFrame(() => {
       shareButton.classList.add('show');
     });
-  }, 3500);
+  }, 4000);
 }
 
 document.addEventListener('keydown', e => {
