@@ -60,9 +60,25 @@
       transition: opacity 0.5s ease;
       background: black;
     }
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Noto Sans JP', sans-serif;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
+  <div id="loadingScreen">楽曲を読み込んでいます...</div>
   <header>
     <h1>楽曲選択</h1>
   </header>
@@ -84,6 +100,32 @@
   <script>
     const bgVideo = document.getElementById('bgVideo');
     const bgSource = document.getElementById('bgSource');
+
+    const preloadVideos = [
+      "/musics/mysong.mp4",
+      "/musics/aimaishokora-te.mp4",
+      "/musics/watameister.mp4",
+      "/musics/biri.mp4"
+    ];
+
+    let videosLoaded = 0;
+    const loadingScreen = document.getElementById('loadingScreen');
+
+    function checkPreloadComplete() {
+      videosLoaded++;
+      if (videosLoaded >= preloadVideos.length) {
+        loadingScreen.style.display = 'none';
+      }
+    }
+
+    preloadVideos.forEach(src => {
+      const video = document.createElement('video');
+      video.src = src;
+      video.preload = "auto";
+      video.onloadeddata = checkPreloadComplete;
+      video.load();
+    });
+
     // ページロード時に無音で1回だけ再生して自動再生権限を得る
     window.addEventListener('load', () => {
       bgVideo.muted = true;
