@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>楽曲選択 - わためぇ音ゲー</title>
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <meta name="description" content="wsn0672の自家製Webサーバー" />
+  
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  
+  <!-- リセットCSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css" />
+  
+  <!-- 自作CSS -->
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin: 20px 0;
+    }
+    .song-list {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .song-list button {
+      background: #444;
+      border: none;
+      padding: 15px;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .song-list button:hover {
+      background: #ff90b3;
+      transform: scale(1.05);
+      color: #222;
+    }
+    #bgVideo {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 0.5s ease;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>楽曲選択</h1>
+  </header>
+
+  <!-- 背景動画 -->
+  <video id="bgVideo" autoplay muted loop playsinline>
+    <source id="bgSource" src="" type="video/mp4" />
+  </video>
+
+  <main>
+    <ul class="song-list">
+      <li><button data-file="mysong.mp4" data-mv="/musics/mysong.mp4">My Song</button></li>
+      <li><button data-file="aimaishokora-te.mp4" data-mv="/musics/aimaishokora-te.mp4">愛昧ショコラーテ</button></li>
+      <li><button data-file="watameister.mp4" data-mv="/musics/watameister.mp4">わためマイスター</button></li>
+      <li><button data-file="biri.mp4" data-mv="/musics/biri.mp4">ビリ</button></li>
+    </ul>
+  </main>
+
+  <script>
+    const bgVideo = document.getElementById('bgVideo');
+    const bgSource = document.getElementById('bgSource');
+
+    document.querySelectorAll('.song-list button').forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        const mv = button.getAttribute('data-mv');
+        if (mv) {
+          bgSource.src = mv;
+          bgVideo.load();
+          bgVideo.style.opacity = 0.15;
+          bgVideo.play();
+        }
+      });
+
+      button.addEventListener('mouseleave', () => {
+        bgVideo.pause();
+        bgVideo.style.opacity = 0;
+      });
+
+      button.addEventListener('click', () => {
+        const file = button.getAttribute('data-file');
+        window.location.href = `/game.html?song=${encodeURIComponent(file)}`;
+      });
+    });
+  </script>
+</body>
+</html>
