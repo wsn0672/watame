@@ -25,6 +25,19 @@
       background: black;
       overflow: hidden;
     }
+    #shareXButton {
+      font-size: 1.5rem;
+      background-color: #1da1f2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 30px;
+    }
+    #shareXButton:hover {
+      background-color: #0d8ddb;
+    }
     #bgVideo {
       position: fixed;
       top: 0; left: 0;
@@ -252,6 +265,7 @@
 
 <div id="resultOverlay" style="display:none;">
   <div id="finalScoreTitle">Score<br>0</div>
+  <button id="shareXButton">Xで結果をシェア</button>
 </div>
 
 <audio id="resultBGM" src="bgm.mp3" loop></audio>
@@ -564,6 +578,13 @@ document.addEventListener('keydown', e => {
       showResult();
     }
   }
+});
+
+document.getElementById('shareXButton').addEventListener('click', () => {
+  const url = encodeURIComponent(location.href);
+  const text = encodeURIComponent(`WD!!で ${score}点出した！\nわためぇ曲で遊べる音ゲー →`);
+  const shareUrl = `https://x.com/intent/tweet?text=${text}%20${url}`;
+  window.open(shareUrl, '_blank');
 });
 </script>
 </body>
