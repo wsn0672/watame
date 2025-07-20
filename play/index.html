@@ -263,7 +263,7 @@
 <body>
 
 <!-- 背景動画 -->
-<video id="bgVideo" loop playsinline>
+<video id="bgVideo" playsinline>
   <source id="bgSource" src="" type="video/mp4" />
 </video>
 
@@ -326,7 +326,6 @@ const finalScoreTitle = document.getElementById('finalScoreTitle');
 // const finalScoreValue = document.getElementById('finalScoreValue');
 const lanesContainer = document.getElementById('lanes');
 let resultShown = false;
-let forcedEnd = false;
 
 // Get cached MV URL from sessionStorage
 const mvUrl = sessionStorage.getItem('mvUrl');
@@ -578,7 +577,6 @@ function spawnNote(noteData) {
 }
 
 function gameLoop() {
-  if (forcedEnd) return;
   const now = performance.now() - startTime;
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time - approachTime <= now) {
@@ -590,8 +588,8 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-bgVideo.addEventListener('timeupdate', () => {
-  if (!resultShown && bgVideo.duration - bgVideo.currentTime <= 3) {
+bgVideo.addEventListener('ended', () => {
+  if (!resultShown) {
     resultShown = true;
     showResult();
   }
@@ -605,7 +603,6 @@ function showResult() {
   lanesContainer.style.display = 'none';
 
   // 動画とノーツの処理停止
-  forcedEnd = true;
   bgVideo.pause();
 
   // 黒幕ゆっくり降ろす
@@ -626,15 +623,7 @@ function showResult() {
 
 
 
-document.addEventListener('keydown', e => {
-  if (e.key.toLowerCase() === 'r') {
-    if (!resultShown) {
-      forcedEnd = true;
-      bgVideo.pause();
-      showResult();
-    }
-  }
-});
+
 
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
