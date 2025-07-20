@@ -614,7 +614,7 @@ document.addEventListener('keydown', e => {
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
   const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓\n`);
-  const shareUrl = `https://x.com/intent/tweet?text=${text}%20${url}`;
+  const shareUrl = `https://x.com/intent/tweet?text=${text}%20https://わたメェ自由研究.wsn0672.org`;
   window.open(shareUrl, '_blank');
 });
 
