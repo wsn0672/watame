@@ -7,9 +7,24 @@
 </head>
 <body>
 
-<h1>わためぇ譜面エディタ</h1>
 
-<audio id="audio" src="/musics/your_song.mp3"></audio>
+<h1>譜面エディタ</h1>
+
+<!-- 曲とMVの選択 -->
+<label for="songSelect">楽曲選択：</label>
+<select id="songSelect">
+  <option value="aimaishokora-te">愛昧ショコラーテ</option>
+  <option value="watameister">わためマイスター</option>
+  <option value="mysong">My Song</option>
+  <option value="biri">ビリ</option>
+</select>
+
+<!-- 背景MV -->
+<video id="bgVideo" autoplay muted loop playsinline>
+  <source src="/musics/aimaishokora-te.mp4" type="video/mp4">
+</video>
+
+<audio id="audio"></audio>
 <button id="playBtn">再生/停止</button>
 <button id="exportBtn">譜面をJSONで保存</button>
 
@@ -17,6 +32,63 @@
 
 <div id="notes"></div>
 
-<script src="/js/editor.js"></script>
+</script>
+<script>
+  const audio = document.getElementById('audio');
+  const bgVideo = document.getElementById('bgVideo');
+  const playBtn = document.getElementById('playBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const notesDiv = document.getElementById('notes');
+  const songSelect = document.getElementById('songSelect');
+
+  let notes = [];
+  let startTime = 0;
+  let playing = false;
+
+  const keyToLane = { d: 0, f: 1, j: 2, k: 3 };
+
+  // 曲選択時に音声とMVを切り替える
+  songSelect.onchange = () => {
+    const song = songSelect.value;
+    audio.src = "/musics/" + song + ".mp3";
+    bgVideo.querySelector('source').src = "/musics/" + song + ".mp4";
+    bgVideo.load();
+  };
+  songSelect.onchange(); // 最初に反映
+
+  playBtn.onclick = () => {
+    if (playing) {
+      audio.pause();
+      playing = false;
+    } else {
+      audio.currentTime = 0;
+      audio.play();
+      startTime = performance.now();
+      notes = [];
+      notesDiv.textContent = '';
+      playing = true;
+    }
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (!playing) return;
+    const key = e.key.toLowerCase();
+    if (keyToLane.hasOwnProperty(key)) {
+      const time = performance.now() - startTime;
+      notes.push({ time: Math.floor(time), lane: keyToLane[key] });
+      notesDiv.textContent = JSON.stringify(notes, null, 2);
+    }
+  });
+
+  exportBtn.onclick = () => {
+    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = songSelect.value + "_譜面.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+</script>
 </body>
 </html>
