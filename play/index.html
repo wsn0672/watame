@@ -318,6 +318,10 @@ const finalScoreTitle = document.getElementById('finalScoreTitle');
 const finalScoreValue = document.getElementById('finalScoreValue');
 const shareButton = document.getElementById('shareButton');
 
+// シェアボタンを最初は非表示・非アクティブにする
+shareButton.style.opacity = '0';
+shareButton.style.pointerEvents = 'none';
+
 let resultShown = false;
 let bgmAudio = new Audio('bgm.mp3');
 
@@ -577,6 +581,11 @@ function showResult() {
     if (displayedScore >= score) {
       displayedScore = score;
       clearInterval(interval);
+      // 停止タイミングで動画を停止
+      bgVideo.pause();
+      // シェアボタンを確実に表示するためにstyle変更
+      shareButton.style.opacity = '1';
+      shareButton.style.pointerEvents = 'auto';
     }
     finalScoreValue.textContent = displayedScore.toLocaleString();
   }, 30);
