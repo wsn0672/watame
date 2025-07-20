@@ -22,28 +22,10 @@
 
 <style>
 .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.left-column {
-  flex: 3;
-  padding-right: 20px;
-}
-
-.right-column {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding-left: 0; /* Remove extra gap */
-  height: 50vh;
-}
-
-.left-column, .right-column {
-  text-align: left;
+  display: block;
+  width: 90%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 header h1 {
@@ -52,13 +34,13 @@ header h1 {
 
 .start-button {
   display: block;
-  margin: 10px auto;
+  margin: 30px auto;
   font-size: 1.2em;
 }
 
 .credit-section {
-  margin-top: 60px; /* Increase spacing from the button */
-  text-align: left;
+  text-align: center;
+  margin-top: 60px;
 }
 </style>
 </head>
@@ -68,50 +50,48 @@ header h1 {
   </header>
 
   <div class="container">
-    <div class="left-column">
-      <main>
-        <p style="text-align: left;">わためと自由研究2025!ってことて<br>わためぇソングを収録した音ゲーを作ってみました<br></p>
-        <section>
-          <h2>このゲームについて</h2>
-          <p>
-            わためぇの曲を収録したPC向け音ゲーです<br>
-            譜面は手打ちなのでズレてるかもしれません。許して<br>
-          </p>
-        </section>
-        <section>
-          <h2>あそびかた</h2>
-          <p>
-            D,F,J,Kキーで操作します<br>
-            ノーツの色によって効果があります<br>
-            <strong>水色ノーツ</strong>：直進します。最大で1000ポイント獲得できます<br>
-            <strong>橙色ノーツ</strong>：直進しますが、最大で2000ポイント獲得できます<br>
-            <strong>紫色ノーツ</strong>：右や左のレーンに突然ずれることがあります。得点は水色と一緒です<br>
-          </p>
-        </section>
-        <br>
-        <section>
+    <main>
+      <p style="text-align: left;">わためと自由研究2025!ってことて<br>わためぇソングを収録した音ゲーを作ってみました<br></p>
+      <section>
+        <h2>このゲームについて</h2>
         <p>
-            ポイントは 2000 - ズレたミリ秒 x 5 で計算されます (橙色の場合はこれの2倍)<br>
-            MISSは得点の10%が削られます。橙色を逃した場合は得点の20%が削られます<br>
+          わためぇの曲を収録したPC向け音ゲーです<br>
+          譜面は手打ちなのでズレてるかもしれません。許して<br>
         </p>
-        </section>
-        <section>
-          <h2>作者について</h2>
-          <p>
-            作者(<a href="https://x.com/wsn0672">wsn0672</a>)は東京都に住む中学2年生<br>
-            小6のときにわためいとになったらしい
-          </p>
-        </section><br>
-      </main>
+      </section>
+      <section>
+        <h2>あそびかた</h2>
+        <p>
+          D,F,J,Kキーで操作します<br>
+          ノーツの色によって効果があります<br>
+          <strong>水色ノーツ</strong>：直進します。最大で1000ポイント獲得できます<br>
+          <strong>橙色ノーツ</strong>：直進しますが、最大で2000ポイント獲得できます<br>
+          <strong>紫色ノーツ</strong>：右や左のレーンに突然ずれることがあります。得点は水色と一緒です<br>
+        </p>
+      </section>
+      <br>
+      <section>
+      <p>
+          ポイントは 2000 - ズレたミリ秒 x 5 で計算されます (橙色の場合はこれの2倍)<br>
+          MISSは得点の10%が削られます。橙色を逃した場合は得点の20%が削られます<br>
+      </p>
+      </section>
+      <section>
+        <h2>作者について</h2>
+        <p>
+          作者(<a href="https://x.com/wsn0672">wsn0672</a>)は東京都に住む中学2年生<br>
+          小6のときにわためいとになったらしい
+        </p>
+      </section><br>
+    </main>
+    <button class="start-button" onclick="location.href='/select.html'">▶ ゲームをはじめる</button>
+    <div class="credit-section">
+      <h2>クレジット</h2>
+      <p>角巻わため</p>
     </div>
-    <div class="right-column">
-      <button class="start-button" onclick="location.href='/select.html'">▶ ゲームをはじめる</button>
-      <div class="credit-section">
-        <h2>クレジット</h2>
-        <p>角巻わため</p>
-      </div>
-      <p>バグとかあったら<a href="https://docs.google.com/forms/d/e/1FAIpQLSdID9_vDyH1WsCCQ72nE5ol20sshnQJJcGK2rWcqqu4oZ2J9Q/viewform?usp=header">フォームから</a>報告ください</p>
-    </div>
+    <p style="text-align: center;">
+      バグとかあったら<a href="https://docs.google.com/forms/d/e/1FAIpQLSdID9_vDyH1WsCCQ72nE5ol20sshnQJJcGK2rWcqqu4oZ2J9Q/viewform?usp=header">フォームから</a>報告ください
+    </p>
   </div>
 
 <button id="copyUaBtn" style="font-size: 0.8rem; position: fixed; bottom: 10px; right: 10px;">
