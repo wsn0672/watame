@@ -44,12 +44,13 @@ header h1 {
 }
 
 .profile-image {
-  width: 120px;
-  height: 120px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
-  display: block;
-  margin: 0 auto 10px auto;
+  display: inline-block;
+  margin: 0 10px 0 0;
+  vertical-align: middle;
 }
 </style>
 </head>
@@ -88,9 +89,9 @@ header h1 {
       </section>
       <section>
         <h2>作者について</h2>
-        <a href="https://x.com/wsn0672">
-        <img src="profile.jpg" alt="作者のプロフィール画像" class="profile-image">
-        <h3>wsn0672</h3>
+        <a href="https://x.com/wsn0672" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+          <img src="profile.jpg" alt="作者のプロフィール画像" class="profile-image">
+          <h3 style="margin: 0;">wsn0672</h3>
         </a>
         <p>
           東京都に住む中学2年生<br>
