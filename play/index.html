@@ -50,6 +50,15 @@
       gap: 20px;
       height: 100vh; /* レーンを画面いっぱいの高さに */
     }
+    #clickBlocker {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1; /* player(0)より上、lanes(2)より下 */
+      background: transparent;
+      pointer-events: auto;
+    }
     .lane {
       width: 180px;
       background: rgba(30, 30, 30, 0.6); /* 半透明ダーク背景 */
@@ -265,6 +274,9 @@
 <!-- 背景YouTubeプレイヤー -->
 <div id="player"></div>
 <script src="https://www.youtube.com/iframe_api"></script>
+
+<!-- クリック遮断レイヤー -->
+<div id="clickBlocker"></div>
 
 <!-- ローディング画面 -->
 <div id="loadingScreen">3</div>
