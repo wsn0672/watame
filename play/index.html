@@ -6,6 +6,7 @@
     <link rel="icon" href="/favicon.png" type="image/png" />
         <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB78MEGS2W"></script>
+    <meta name="description" content="wsn0672の自家製Webサーバー" />
 
     <!-- Google Fonts -->
     <link
@@ -40,6 +41,14 @@
     #shareXButton:hover {
       background-color: #0d8ddb;
     }
+    #player {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: -1;
+    }
     #lanes {
       position: fixed;
       top: 0;
@@ -49,24 +58,6 @@
       display: flex;
       gap: 20px;
       height: 100vh; /* レーンを画面いっぱいの高さに */
-    }
-    #clickBlocker {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1; /* player(0)より上、lanes(2)より下 */
-      background: transparent;
-      pointer-events: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 2.5rem;
-      font-family: 'Noto Sans JP', sans-serif;
-      user-select: none;
-      cursor: pointer;
-      z-index: 9999;
     }
     .lane {
       width: 180px;
@@ -221,14 +212,6 @@
       text-align: center;
       user-select: none;
     }
-    /* YouTubeプレイヤーの全画面サイズ調整 */
-    #player {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-    }
 
     #finalScoreTitle {
       font-size: 3rem;
@@ -283,11 +266,8 @@
 <!-- 背景YouTubeプレイヤー -->
 <div id="player"></div>
 
-<!-- クリック遮断レイヤー -->
-<div id="clickBlocker">準備ができたらクリックしてください...</div>
-
 <!-- ローディング画面 -->
-<div id="loadingScreen" style="display: none;">3</div>
+<div id="loadingScreen">3</div>
 
 <!-- レーン -->
 <div id="lanes">
@@ -321,6 +301,7 @@
 
 <div id="resultOverlay" style="display:none;">
   <div id="finalScoreTitle">Score<br>0</div>
+  <!-- move buttons to bottom -->
   <div id="resultButtons">
     <button id="shareXButton">Xで結果をシェア</button>
     <button id="replayButton">もう一度プレイ</button>
@@ -329,24 +310,54 @@
 
 <audio id="resultBGM" src="/musics/resault.mp3" loop></audio>
 
-<script src="https://www.youtube.com/iframe_api"></script>
 <script>
 const approachTime = 1000; // ノーツが判定ラインに到達するまでの時間(ms)
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
 
-let ytPlayer;
-let playerReady = false;
-let countdownFinished = false;
 const resultBGM = document.getElementById('resultBGM');
 
 const resultOverlay = document.getElementById('resultOverlay');
 const finalScoreTitle = document.getElementById('finalScoreTitle');
+// const finalScoreValue = document.getElementById('finalScoreValue');
 const lanesContainer = document.getElementById('lanes');
-const clickBlocker = document.getElementById('clickBlocker');
-
 let resultShown = false;
+
+
+let player;
+let videoReady = false;
+let videoIdMap = {};
+
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player', {
+    height: '100%',
+    width: '100%',
+    videoId: '', // will load dynamically
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      modestbranding: 1,
+      rel: 0,
+      loop: 0,
+      disablekb: 1,
+      playsinline: 1,
+      iv_load_policy: 3
+    },
+    events: {
+      onReady: () => { videoReady = true; },
+      onStateChange: onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerStateChange(event) {
+  // 0 means ended
+  if (event.data === YT.PlayerState.ENDED && !resultShown) {
+    resultShown = true;
+    showResult();
+  }
+}
 
 const lanes = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('.lane-label');
@@ -356,8 +367,6 @@ const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
-let chart = [];
-let startTime = 0;
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -439,7 +448,72 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// 開始1秒以内のノーツを先に生成する
+// Load videoId map before fetching chart
+fetch('/musics/videoids.json')
+  .then(r => r.json())
+  .then(map => {
+    videoIdMap = map;
+    // 譜面JSONを曲名に基づいて取得
+    return fetch("/notes/" + chartFile)
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
+    return res.json();
+  })
+  .then(data => {
+    chart = data;
+
+    spawnPreNotes(); // 追加: 開始1秒以内のノーツを先に表示
+
+    let countdown = 3;
+    loadingScreen.textContent = countdown;
+
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        loadingScreen.textContent = countdown;
+      } else {
+        clearInterval(countdownInterval);
+        loadingScreen.style.display = 'none';
+        // YouTube動画再生
+        if (videoReady) {
+          const videoId = getVideoIdForSong(song);
+          player.loadVideoById({ videoId: videoId, startSeconds: 0 });
+          player.playVideo();
+          startTime = performance.now();
+          gameLoop();
+        } else {
+          // fallback: wait for ready event
+          let wait = setInterval(() => {
+            if (videoReady) {
+              clearInterval(wait);
+              const videoId = getVideoIdForSong(song);
+              player.loadVideoById({ videoId: videoId, startSeconds: 0 });
+              player.playVideo();
+              startTime = performance.now();
+              gameLoop();
+            }
+          }, 100);
+        }
+      }
+    }, 1000);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("譜面ファイルが見つかりませんでした: " + chartFile);
+  });
+
+function getVideoIdForSong(songFileName) {
+  // Remove extension
+  let base = songFileName.replace(/\.[^/.]+$/, "");
+  // try exact match, fallback to first value
+  return videoIdMap[base] || Object.values(videoIdMap)[0] || "";
+}
+
+let chart = [];
+let startTime = 0;
+
+// 開始時にアプローチタイムより早いノーツを先に生成する
 function spawnPreNotes() {
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time <= approachTime) {
@@ -471,6 +545,7 @@ function spawnNote(noteData) {
 
   const laneHeight = lanes[laneIndex].offsetHeight;
 
+  // const approachTime = 1000; // 1秒で判定エリアに到達（グローバル変数を使用）
   const speed = targetY / approachTime;
 
   // 譜面のタイムスタンプをdatasetに保存
@@ -562,6 +637,8 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
+// 動画終了時はYouTube APIのonPlayerStateChangeで処理
+
 function showResult() {
   // 黒幕表示
   resultOverlay.style.display = 'flex';
@@ -570,8 +647,8 @@ function showResult() {
   lanesContainer.style.display = 'none';
 
   // 動画とノーツの処理停止
-  if (ytPlayer && ytPlayer.pauseVideo) {
-    ytPlayer.pauseVideo();
+  if (player && typeof player.pauseVideo === 'function') {
+    player.pauseVideo();
   }
 
   // 黒幕ゆっくり降ろす
@@ -590,79 +667,9 @@ function showResult() {
   }, 10);
 }
 
-// --- YouTube IFrame API ---
-function onYouTubeIframeAPIReady() {
-  const videoData = JSON.parse(sessionStorage.getItem('videoData'));
-  ytPlayer = new YT.Player('player', {
-    videoId: videoData.id,
-    playerVars: {
-      autoplay: 0,
-      start: 0, // 動画の先頭から再生
-      controls: 0,
-      mute: 1,
-      playsinline: 1
-    },
-    events: {
-      onReady: onPlayerReady,
-      onStateChange: onPlayerStateChange
-    }
-  });
-}
 
-function onPlayerReady(event) {
-  playerReady = true;
-  // 最初は停止状態。カウントダウン終わったら再生開始
-  event.target.pauseVideo();
-}
 
-function onPlayerStateChange(event) {
-  if (event.data === YT.PlayerState.ENDED) {
-    if (!resultShown) {
-      resultShown = true;
-      showResult();
-    }
-  }
-}
 
-// クリックで準備完了＆カウントダウン開始
-clickBlocker.addEventListener('click', () => {
-  clickBlocker.style.display = 'none';
-  let countdown = 3;
-  loadingScreen.textContent = countdown;
-  loadingScreen.style.display = 'flex';
-
-  const countdownInterval = setInterval(() => {
-    countdown--;
-    if (countdown > 0) {
-      loadingScreen.textContent = countdown;
-    } else {
-      clearInterval(countdownInterval);
-      loadingScreen.style.display = 'none';
-      countdownFinished = true;
-      if (ytPlayer && ytPlayer.playVideo) {
-        ytPlayer.unMute();
-        ytPlayer.playVideo();
-      }
-      startTime = performance.now();
-      gameLoop();
-    }
-  }, 1000);
-});
-
-// 譜面JSONを曲名に基づいて取得
-fetch("/notes/" + chartFile)
-  .then(res => {
-    if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
-    return res.json();
-  })
-  .then(data => {
-    chart = data;
-    spawnPreNotes(); // 開始1秒以内のノーツ先出し
-  })
-  .catch(err => {
-    console.error(err);
-    alert("譜面ファイルが見つかりませんでした: " + chartFile);
-  });
 
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
@@ -675,5 +682,6 @@ document.getElementById('replayButton').addEventListener('click', () => {
   window.location.href = '/select.html';
 });
 </script>
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
