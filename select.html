@@ -128,101 +128,149 @@
       <li><button data-file="biri.mp4" data-mv="/musics/biri.mp4" data-chorus="58">ビリ</button></li>
     </ul>
   </main>
-<script>
-  let player;
-  let playerReady = false;
-  let userInteracted = false;
-  let videoDataGlobal = null;
 
-  function onYouTubeIframeAPIReady() {
-    if (player) {
-      player.destroy();
-      player = null;
-    }
-    playerReady = false;
-    player = new YT.Player('player', {
-      height: '100%',
-      width: '100%',
-      videoId: '',
-      playerVars: {
-        autoplay: 0,
-        controls: 0,
-        modestbranding: 1,
-        rel: 0,
-        loop: 1,
-        playlist: '',
-        mute: 1,
-        iv_load_policy: 3,
-        disablekb: 1,
-      },
-      events: {
-        'onReady': event => {
-          playerReady = true;
-          event.target.mute();
-          event.target.pauseVideo();
-        },
-        'onStateChange': event => {
-          // 状態変化は必要に応じて
+  <script>
+    const pinkOverlay = document.getElementById('pinkOverlay');
+    const headerTitle = document.querySelector('header h1');
+    const headerNote = document.querySelector('header p');
+
+    // 初期状態でピンクオーバーレイは表示されたままにする
+    pinkOverlay.style.opacity = '1';
+    headerTitle.style.color = 'black';
+    headerNote.style.color = 'black';
+
+    document.querySelectorAll('.song-list button').forEach(button => {
+      button.addEventListener('click', () => {
+        const file = button.getAttribute('data-file');
+        const videoInfo = videoDataGlobal[file];
+        if (videoInfo) {
+          const videoData = {
+            id: videoInfo.videoId,
+            start: videoInfo.chorusStart || 0
+          };
+          sessionStorage.setItem('videoData', JSON.stringify(videoData));
         }
-      }
-    });
-  }
-
-  function playVideo(videoId, startSeconds) {
-    if (!playerReady || !player) {
-      console.warn("Player not ready");
-      return;
-    }
-    if (!userInteracted) {
-      player.mute();
-    } else {
-      player.unMute();
-    }
-    player.loadVideoById({
-      videoId,
-      startSeconds,
-      suggestedQuality: 'hd720',
-    });
-    player.playVideo();
-  }
-
-  document.body.addEventListener('click', () => {
-    if (!userInteracted) {
-      userInteracted = true;
-    }
-  }, { once: true });
-
-  fetch('/musics/videoids.json')
-    .then(response => response.json())
-    .then(videoData => {
-      videoDataGlobal = videoData;
-      const pinkOverlay = document.getElementById('pinkOverlay');
-      const headerTitle = document.querySelector('header h1');
-      const headerNote = document.querySelector('header p');
-
-      document.querySelectorAll('.song-list button').forEach(button => {
-        button.addEventListener('mouseenter', () => {
-          const songFile = button.getAttribute('data-file');
-          const videoInfo = videoDataGlobal ? videoDataGlobal[songFile] : null;
-          if (videoInfo) {
-            pinkOverlay.style.opacity = '0';
-            headerTitle.style.color = 'white';
-            headerNote.style.color = 'white';
-            playVideo(videoInfo.videoId, videoInfo.chorusStart || 0);
-          }
-        });
-
-        button.addEventListener('mouseleave', () => {
-          pinkOverlay.style.opacity = '1';
-          headerTitle.style.color = 'black';
-          headerNote.style.color = 'black';
-          if (player && typeof player.pauseVideo === 'function') {
-            player.pauseVideo();
-            player.seekTo(0, true);
-          }
-        });
+        window.location.href = `/play?song=${encodeURIComponent(file)}`;
       });
     });
-</script>
+    document.getElementById('backButton').addEventListener('click', () => {
+      window.location.href = '/';
+    });
+
+    let player;
+    let userInteracted = false;
+    let videoDataGlobal = null;
+
+    function onYouTubeIframeAPIReady() {
+      // プレイヤー破棄
+      if (player) {
+        try {
+          player.destroy();
+        } catch(e) {
+          console.warn("player.destroy() failed:", e);
+        }
+        player = null;
+      }
+
+      // プレイヤー用のdivを空にして再生成しやすく
+      const playerDiv = document.getElementById('player');
+      playerDiv.innerHTML = '';
+
+      playerReady = false;
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: '',
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          modestbranding: 1,
+          rel: 0,
+          loop: 1,
+          playlist: '',
+          mute: 1,
+          iv_load_policy: 3,
+          disablekb: 1,
+          playsinline: 1
+        },
+        events: {
+          'onReady': event => {
+            playerReady = true;
+            event.target.mute();
+            event.target.pauseVideo();
+          },
+          'onStateChange': event => {
+            // 必要なら状態管理
+          }
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Initially muted and paused
+      event.target.mute();
+      event.target.pauseVideo();
+    }
+
+    function onPlayerStateChange(event) {
+      // Optional: handle state changes if needed
+    }
+
+    document.body.addEventListener('click', () => {
+      if (!userInteracted) {
+        userInteracted = true;
+      }
+    }, { once: true });
+
+    fetch('/musics/videoids.json')
+      .then(response => response.json())
+      .then(videoData => {
+        videoDataGlobal = videoData;
+        const pinkOverlay = document.getElementById('pinkOverlay');
+        const headerTitle = document.querySelector('header h1');
+        const headerNote = document.querySelector('header p');
+
+        function playVideo(videoId, startSeconds) {
+          if (!player || typeof player.loadVideoById !== 'function') {
+            console.warn("YouTube player not ready yet");
+            return;
+          }
+          if (!userInteracted) {
+            player.mute();
+          } else {
+            player.unMute();
+          }
+          player.loadVideoById({
+            videoId: videoId,
+            startSeconds: startSeconds,
+            suggestedQuality: 'hd720',
+          });
+          player.playVideo();
+        }
+
+        document.querySelectorAll('.song-list button').forEach(button => {
+          button.addEventListener('mouseenter', () => {
+            const songFile = button.getAttribute('data-file');
+            const videoInfo = videoDataGlobal ? videoDataGlobal[songFile] : null;
+            if (videoInfo) {
+              pinkOverlay.style.opacity = '0';
+              headerTitle.style.color = 'white';
+              headerNote.style.color = 'white';
+              playVideo(videoInfo.videoId, videoInfo.chorusStart || 0);
+            }
+          });
+
+          button.addEventListener('mouseleave', () => {
+            pinkOverlay.style.opacity = '1';
+            headerTitle.style.color = 'black';
+            headerNote.style.color = 'black';
+            if (player && typeof player.pauseVideo === 'function') {
+              player.pauseVideo();
+              player.seekTo(0, true);
+            }
+          });
+        });
+      });
+  </script>
 </body>
 </html>
