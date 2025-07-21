@@ -163,9 +163,23 @@
         const headerTitle = document.querySelector('header h1');
         const headerNote = document.querySelector('header p');
 
-        function setBackgroundVideo(videoId) {
-          iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0`;
+        let userInteracted = false;
+
+        function setBackgroundVideo(videoId, muted) {
+          iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0`;
         }
+
+        document.body.addEventListener('click', () => {
+          if (!userInteracted) {
+            userInteracted = true;
+          }
+        }, { once: true });
+
+        document.body.addEventListener('keydown', () => {
+          if (!userInteracted) {
+            userInteracted = true;
+          }
+        }, { once: true });
 
         // 初期ピンク背景
         pinkOverlay.style.opacity = '1';
@@ -180,7 +194,7 @@
               pinkOverlay.style.opacity = '0';
               headerTitle.style.color = 'white';
               headerNote.style.color = 'white';
-              setBackgroundVideo(videoId);
+              setBackgroundVideo(videoId, !userInteracted);
             }
           });
 
