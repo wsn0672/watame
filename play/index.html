@@ -50,15 +50,6 @@
       gap: 20px;
       height: 100vh; /* レーンを画面いっぱいの高さに */
     }
-    #clickBlocker {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1; /* player(0)より上、lanes(2)より下 */
-      background: transparent;
-      pointer-events: auto;
-    }
     .lane {
       width: 180px;
       background: rgba(30, 30, 30, 0.6); /* 半透明ダーク背景 */
@@ -212,14 +203,6 @@
       text-align: center;
       user-select: none;
     }
-    /* YouTubeプレイヤーの全画面サイズ調整 */
-    #player {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-    }
 
     #finalScoreTitle {
       font-size: 3rem;
@@ -275,9 +258,6 @@
 <div id="player"></div>
 <script src="https://www.youtube.com/iframe_api"></script>
 
-<!-- クリック遮断レイヤー -->
-<div id="clickBlocker"></div>
-
 <!-- ローディング画面 -->
 <div id="loadingScreen">3</div>
 
@@ -328,10 +308,7 @@ const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
 
-// --- グローバル変数追加 ---
 let ytPlayer;
-let playerReady = false;
-let countdownFinished = false;
 const resultBGM = document.getElementById('resultBGM');
 
 const resultOverlay = document.getElementById('resultOverlay');
@@ -445,11 +422,6 @@ fetch("/notes/" + chartFile)
     let countdown = 3;
     loadingScreen.textContent = countdown;
 
-    // カウントダウン開始前は動画を停止
-    if (ytPlayer && ytPlayer.pauseVideo) {
-      ytPlayer.pauseVideo();
-    }
-
     const countdownInterval = setInterval(() => {
       countdown--;
       if (countdown > 0) {
@@ -457,12 +429,7 @@ fetch("/notes/" + chartFile)
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        // カウントダウン終了
-        countdownFinished = true;
-        // カウントダウン終了時に動画再生（playerReadyなら）
-        if (playerReady && ytPlayer && ytPlayer.playVideo) {
-          ytPlayer.playVideo();
-        }
+        // YouTube動画はonYouTubeIframeAPIReadyで自動再生される
         startTime = performance.now(); // 曲開始（MV再生）と完全同期
         gameLoop();
       }
@@ -637,9 +604,9 @@ function onYouTubeIframeAPIReady() {
     videoId: videoData.id,
     playerVars: {
       autoplay: 1,
-      start: videoData.start || 0,
+      start: 0,
       controls: 0,
-      mute: 0, // 音が出るように
+      mute: 1,
       playsinline: 1
     },
     events: {
@@ -650,14 +617,7 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
-  playerReady = true;
-  // カウントダウン終了済みなら再生
-  if (countdownFinished) {
-    event.target.playVideo();
-  } else {
-    // カウントダウン中は停止
-    event.target.pauseVideo();
-  }
+  event.target.playVideo();
 }
 
 function onPlayerStateChange(event) {
