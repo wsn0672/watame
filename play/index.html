@@ -58,15 +58,6 @@
       z-index: 1; /* player(0)より上、lanes(2)より下 */
       background: transparent;
       pointer-events: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 2.5rem;
-      font-family: 'Noto Sans JP', sans-serif;
-      user-select: none;
-      cursor: pointer;
-      z-index: 9999;
     }
     .lane {
       width: 180px;
@@ -282,9 +273,10 @@
 
 <!-- 背景YouTubeプレイヤー -->
 <div id="player"></div>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <!-- クリック遮断レイヤー -->
-<div id="clickBlocker">準備ができたらクリックしてください...</div>
+<div id="clickBlocker"></div>
 
 <!-- ローディング画面 -->
 <div id="loadingScreen">3</div>
@@ -321,6 +313,7 @@
 
 <div id="resultOverlay" style="display:none;">
   <div id="finalScoreTitle">Score<br>0</div>
+  <!-- move buttons to bottom -->
   <div id="resultButtons">
     <button id="shareXButton">Xで結果をシェア</button>
     <button id="replayButton">もう一度プレイ</button>
@@ -329,13 +322,13 @@
 
 <audio id="resultBGM" src="/musics/resault.mp3" loop></audio>
 
-<script src="https://www.youtube.com/iframe_api"></script>
 <script>
 const approachTime = 1000; // ノーツが判定ラインに到達するまでの時間(ms)
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
 
+// --- グローバル変数追加 ---
 let ytPlayer;
 let playerReady = false;
 let countdownFinished = false;
@@ -343,10 +336,11 @@ const resultBGM = document.getElementById('resultBGM');
 
 const resultOverlay = document.getElementById('resultOverlay');
 const finalScoreTitle = document.getElementById('finalScoreTitle');
+// const finalScoreValue = document.getElementById('finalScoreValue');
 const lanesContainer = document.getElementById('lanes');
-const clickBlocker = document.getElementById('clickBlocker');
-
 let resultShown = false;
+
+
 
 const lanes = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('.lane-label');
@@ -356,8 +350,6 @@ const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
-let chart = [];
-let startTime = 0;
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -439,7 +431,52 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// 開始1秒以内のノーツを先に生成する
+// 譜面JSONを曲名に基づいて取得
+fetch("/notes/" + chartFile)
+  .then(res => {
+    if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
+    return res.json();
+  })
+  .then(data => {
+    chart = data;
+
+    spawnPreNotes(); // 追加: 開始1秒以内のノーツを先に表示
+
+    let countdown = 3;
+    loadingScreen.textContent = countdown;
+
+    // カウントダウン開始前は動画を停止
+    if (ytPlayer && ytPlayer.pauseVideo) {
+      ytPlayer.pauseVideo();
+    }
+
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        loadingScreen.textContent = countdown;
+      } else {
+        clearInterval(countdownInterval);
+        loadingScreen.style.display = 'none';
+        // カウントダウン終了
+        countdownFinished = true;
+        // カウントダウン終了時に動画再生（playerReadyなら）
+        if (playerReady && ytPlayer && ytPlayer.playVideo) {
+          ytPlayer.playVideo();
+        }
+        startTime = performance.now(); // 曲開始（MV再生）と完全同期
+        gameLoop();
+      }
+    }, 1000);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("譜面ファイルが見つかりませんでした: " + chartFile);
+  });
+
+let chart = [];
+let startTime = 0;
+
+// 開始時にアプローチタイムより早いノーツを先に生成する
 function spawnPreNotes() {
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time <= approachTime) {
@@ -471,6 +508,7 @@ function spawnNote(noteData) {
 
   const laneHeight = lanes[laneIndex].offsetHeight;
 
+  // const approachTime = 1000; // 1秒で判定エリアに到達（グローバル変数を使用）
   const speed = targetY / approachTime;
 
   // 譜面のタイムスタンプをdatasetに保存
@@ -562,6 +600,8 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
+
+
 function showResult() {
   // 黒幕表示
   resultOverlay.style.display = 'flex';
@@ -596,10 +636,10 @@ function onYouTubeIframeAPIReady() {
   ytPlayer = new YT.Player('player', {
     videoId: videoData.id,
     playerVars: {
-      autoplay: 0,
-      start: 0, // 動画の先頭から再生
+      autoplay: 1,
+      start: 0, // 必ず動画の先頭から再生
       controls: 0,
-      mute: 1,
+      mute: 0, // 音が出るように
       playsinline: 1
     },
     events: {
@@ -611,8 +651,13 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
   playerReady = true;
-  // 最初は停止状態。カウントダウン終わったら再生開始
-  event.target.pauseVideo();
+  // カウントダウン終了済みなら再生
+  if (countdownFinished) {
+    event.target.playVideo();
+  } else {
+    // カウントダウン中は停止
+    event.target.pauseVideo();
+  }
 }
 
 function onPlayerStateChange(event) {
@@ -623,48 +668,6 @@ function onPlayerStateChange(event) {
     }
   }
 }
-
-// クリックで準備完了＆カウントダウン開始
-clickBlocker.addEventListener('click', () => {
-  if (!playerReady) return; // プレイヤー準備できてないなら無視
-
-  clickBlocker.style.display = 'none';
-  let countdown = 3;
-  loadingScreen.textContent = countdown;
-  loadingScreen.style.display = 'flex';
-
-  const countdownInterval = setInterval(() => {
-    countdown--;
-    if (countdown > 0) {
-      loadingScreen.textContent = countdown;
-    } else {
-      clearInterval(countdownInterval);
-      loadingScreen.style.display = 'none';
-      countdownFinished = true;
-      if (ytPlayer && ytPlayer.playVideo) {
-        ytPlayer.unMute();
-        ytPlayer.playVideo();
-      }
-      startTime = performance.now();
-      gameLoop();
-    }
-  }, 1000);
-});
-
-// 譜面JSONを曲名に基づいて取得
-fetch("/notes/" + chartFile)
-  .then(res => {
-    if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
-    return res.json();
-  })
-  .then(data => {
-    chart = data;
-    spawnPreNotes(); // 開始1秒以内のノーツ先出し
-  })
-  .catch(err => {
-    console.error(err);
-    alert("譜面ファイルが見つかりませんでした: " + chartFile);
-  });
 
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
