@@ -6,7 +6,6 @@
       <link rel="icon" href="/favicon.png" type="image/png" />
         <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB78MEGS2W"></script>
-    <meta name="description" content="wsn0672の自家製Webサーバー" />
   <style>
     body {
       font-family: 'Noto Sans JP', sans-serif;
@@ -47,17 +46,6 @@
       background: #ff90b3;
       transform: scale(1.05);
       color: #222;
-    }
-    #bgVideo {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      object-fit: cover;
-      opacity: 1;
-      pointer-events: none;
-      z-index: -2;
-      transition: opacity 0.5s ease;
-      background: black;
     }
     #pinkOverlay {
       position: fixed;
@@ -122,9 +110,9 @@
   </header>
 
   <!-- 背景動画 -->
-  <video id="bgVideo" autoplay loop playsinline>
-    <source id="bgSource" src="" type="video/mp4" />
-  </video>
+  <div id="bgVideoContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; pointer-events: none; overflow: hidden;">
+    <iframe id="bgVideo" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
   <div id="pinkOverlay"></div>
 
   <main>
@@ -140,9 +128,6 @@
   </main>
 
   <script>
-    const bgVideo = document.getElementById('bgVideo');
-    const bgSource = document.getElementById('bgSource');
-
     const preloadVideos = [
       "/musics/mysong.mp4",
       "/musics/aimaishokora-te.mp4",
@@ -180,59 +165,21 @@
         });
     });
 
-    // ページロード時に無音で1回だけ再生して自動再生権限を得る
-    window.addEventListener('load', () => {
-      bgVideo.muted = true;
-      bgVideo.play().catch(() => {});
-    });
 const pinkOverlay = document.getElementById('pinkOverlay');
 const headerTitle = document.querySelector('header h1');
 const headerNote = document.querySelector('header p');
 
-// 動画の再生状態でpinkOverlayを制御
-function updatePinkOverlay() {
-  if (bgVideo.paused || bgVideo.readyState < 3) {
-    // 動画が再生されていない or 読み込み中はピンク表示
-    pinkOverlay.style.opacity = '1';
-    headerTitle.style.color = 'black';
-    headerNote.style.color = 'black';
-  } else {
-    pinkOverlay.style.opacity = '0';
-    headerTitle.style.color = 'white';
-    headerNote.style.color = 'white';
-  }
-}
-
-// ページロード時と動画状態変化時にチェック
-bgVideo.addEventListener('play', updatePinkOverlay);
-bgVideo.addEventListener('pause', updatePinkOverlay);
-bgVideo.addEventListener('ended', updatePinkOverlay);
-bgVideo.addEventListener('loadeddata', updatePinkOverlay);
-
-// 初期チェック
-updatePinkOverlay();
+// 初期状態でピンクオーバーレイは表示されたままにする
+pinkOverlay.style.opacity = '1';
+headerTitle.style.color = 'black';
+headerNote.style.color = 'black';
 
 document.querySelectorAll('.song-list button').forEach(button => {
   button.addEventListener('mouseenter', () => {
-    const mv = button.getAttribute('data-mv');
-    const chorus = parseFloat(button.getAttribute('data-chorus')) || 0;
-    if (mv && videoBlobs[mv]) {
-      bgSource.src = videoBlobs[mv];
-      bgVideo.load();
-
-      bgVideo.muted = true;  // いったんミュートにする
-      bgVideo.play();
-
-      // メタデータ読み込み後にcurrentTimeセット＆ミュート解除
-      bgVideo.onloadedmetadata = () => {
-        bgVideo.currentTime = chorus;
-        bgVideo.muted = false;
-      };
-    }
   });
 
   button.addEventListener('mouseleave', () => {
-    bgVideo.pause();
+    // 動画制御できないため何もしない
   });
 
   button.addEventListener('click', () => {
@@ -243,6 +190,46 @@ document.querySelectorAll('.song-list button').forEach(button => {
 document.getElementById('backButton').addEventListener('click', () => {
   window.location.href = '/';
 });
+
+fetch('/musics/videoids.json')
+  .then(response => response.json())
+  .then(videoData => {
+    const iframe = document.getElementById('bgVideo');
+    const pinkOverlay = document.getElementById('pinkOverlay');
+    const headerTitle = document.querySelector('header h1');
+    const headerNote = document.querySelector('header p');
+
+    function setBackgroundVideo(videoId) {
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0`;
+    }
+
+    // 初期ピンク背景
+    iframe.style.display = 'none';
+    pinkOverlay.style.opacity = '1';
+    headerTitle.style.color = 'black';
+    headerNote.style.color = 'black';
+
+    document.querySelectorAll('.song-list button').forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        const songFile = button.getAttribute('data-file');
+        const videoId = videoData[songFile];
+        if (videoId) {
+          iframe.style.display = 'block';
+          pinkOverlay.style.opacity = '0';
+          headerTitle.style.color = 'white';
+          headerNote.style.color = 'white';
+          setBackgroundVideo(videoId);
+        }
+      });
+
+      button.addEventListener('mouseleave', () => {
+        iframe.style.display = 'none';
+        pinkOverlay.style.opacity = '1';
+        headerTitle.style.color = 'black';
+        headerNote.style.color = 'black';
+      });
+    });
+  });
   </script>
 </body>
 </html>
