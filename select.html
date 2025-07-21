@@ -102,6 +102,7 @@
       pointer-events: none;
     }
   </style>
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
   
@@ -112,7 +113,7 @@
 
   <!-- 背景動画 -->
   <div id="bgVideoContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; pointer-events: none; overflow: hidden;">
-    <iframe id="bgVideo" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div id="player"></div>
   </div>
   <div id="pinkOverlay"></div>
 
@@ -139,13 +140,6 @@
     headerNote.style.color = 'black';
 
     document.querySelectorAll('.song-list button').forEach(button => {
-      button.addEventListener('mouseenter', () => {
-      });
-
-      button.addEventListener('mouseleave', () => {
-        // 動画制御できないため何もしない
-      });
-
       button.addEventListener('click', () => {
         const file = button.getAttribute('data-file');
         window.location.href = `/play?song=${encodeURIComponent(file)}`;
@@ -155,46 +149,85 @@
       window.location.href = '/';
     });
 
+    let player;
+    let userInteracted = false;
+    let videoDataGlobal = null;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: '', // will be loaded dynamically
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          modestbranding: 1,
+          rel: 0,
+          loop: 1,
+          playlist: '',
+          mute: 1,
+          iv_load_policy: 3,
+          disablekb: 1,
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange,
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Initially muted and paused
+      event.target.mute();
+      event.target.pauseVideo();
+    }
+
+    function onPlayerStateChange(event) {
+      // Optional: handle state changes if needed
+    }
+
+    document.body.addEventListener('click', () => {
+      if (!userInteracted) {
+        userInteracted = true;
+      }
+    }, { once: true });
+
     fetch('/musics/videoids.json')
       .then(response => response.json())
       .then(videoData => {
-        const iframe = document.getElementById('bgVideo');
+        videoDataGlobal = videoData;
         const pinkOverlay = document.getElementById('pinkOverlay');
         const headerTitle = document.querySelector('header h1');
         const headerNote = document.querySelector('header p');
 
-        let userInteracted = false;
-
-        function setBackgroundVideo(videoId, muted) {
-          iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0`;
+        function playVideo(videoId, startSeconds) {
+          if (!userInteracted) {
+            player.mute();
+          } else {
+            player.unMute();
+          }
+          player.loadVideoById({
+            videoId: videoId,
+            startSeconds: startSeconds,
+            suggestedQuality: 'hd720',
+          });
+          player.playVideo();
         }
 
-        document.body.addEventListener('click', () => {
-          if (!userInteracted) {
-            userInteracted = true;
-          }
-        }, { once: true });
-
-        document.body.addEventListener('keydown', () => {
-          if (!userInteracted) {
-            userInteracted = true;
-          }
-        }, { once: true });
-
-        // 初期ピンク背景
-        pinkOverlay.style.opacity = '1';
-        headerTitle.style.color = 'black';
-        headerNote.style.color = 'black';
+        function stopVideo() {
+          player.pauseVideo();
+          player.seekTo(0, true);
+        }
 
         document.querySelectorAll('.song-list button').forEach(button => {
           button.addEventListener('mouseenter', () => {
             const songFile = button.getAttribute('data-file');
-            const videoId = videoData[songFile];
-            if (videoId) {
+            const videoInfo = videoDataGlobal[songFile];
+            if (videoInfo) {
               pinkOverlay.style.opacity = '0';
               headerTitle.style.color = 'white';
               headerNote.style.color = 'white';
-              setBackgroundVideo(videoId, !userInteracted);
+              playVideo(videoInfo.videoId, videoInfo.chorusStart || 0);
             }
           });
 
@@ -202,6 +235,7 @@
             pinkOverlay.style.opacity = '1';
             headerTitle.style.color = 'black';
             headerNote.style.color = 'black';
+            stopVideo();
           });
         });
       });

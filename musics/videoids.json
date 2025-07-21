@@ -1,6 +1,6 @@
 {
-  "mysong.mp4": "6VGkeUaX-zk",
-  "aimaishokora-te.mp4": "P8OjkcLzYCM",
-  "watameister.mp4": "ZMLJMxKgjLU",
-  "biri.mp4": "cVT_yB1qpYY"
+  "mysong.mp4": { "videoId": "6VGkeUaX-zk", "chorusStart": 45.5 },
+  "aimaishokora-te.mp4": { "videoId": "P8OjkcLzYCM", "chorusStart": 101.5 },
+  "watameister.mp4": { "videoId": "ZMLJMxKgjLU", "chorusStart": 77 },
+  "biri.mp4": { "videoId": "cVT_yB1qpYY", "chorusStart": 58 }
 }
