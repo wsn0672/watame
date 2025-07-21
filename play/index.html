@@ -203,6 +203,14 @@
       text-align: center;
       user-select: none;
     }
+    /* YouTubeプレイヤーの全画面サイズ調整 */
+    #player {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
 
     #finalScoreTitle {
       font-size: 3rem;
@@ -308,7 +316,10 @@ const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
 
+// --- グローバル変数追加 ---
 let ytPlayer;
+let playerReady = false;
+let countdownFinished = false;
 const resultBGM = document.getElementById('resultBGM');
 
 const resultOverlay = document.getElementById('resultOverlay');
@@ -422,6 +433,11 @@ fetch("/notes/" + chartFile)
     let countdown = 3;
     loadingScreen.textContent = countdown;
 
+    // カウントダウン開始前は動画を停止
+    if (ytPlayer && ytPlayer.pauseVideo) {
+      ytPlayer.pauseVideo();
+    }
+
     const countdownInterval = setInterval(() => {
       countdown--;
       if (countdown > 0) {
@@ -429,7 +445,12 @@ fetch("/notes/" + chartFile)
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        // YouTube動画はonYouTubeIframeAPIReadyで自動再生される
+        // カウントダウン終了
+        countdownFinished = true;
+        // カウントダウン終了時に動画再生（playerReadyなら）
+        if (playerReady && ytPlayer && ytPlayer.playVideo) {
+          ytPlayer.playVideo();
+        }
         startTime = performance.now(); // 曲開始（MV再生）と完全同期
         gameLoop();
       }
@@ -606,7 +627,7 @@ function onYouTubeIframeAPIReady() {
       autoplay: 1,
       start: videoData.start || 0,
       controls: 0,
-      mute: 1,
+      mute: 0, // 音が出るように
       playsinline: 1
     },
     events: {
@@ -617,7 +638,14 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
-  event.target.playVideo();
+  playerReady = true;
+  // カウントダウン終了済みなら再生
+  if (countdownFinished) {
+    event.target.playVideo();
+  } else {
+    // カウントダウン中は停止
+    event.target.pauseVideo();
+  }
 }
 
 function onPlayerStateChange(event) {
