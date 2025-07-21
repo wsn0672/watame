@@ -41,13 +41,6 @@
     #shareXButton:hover {
       background-color: #0d8ddb;
     }
-    #bgVideo {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      object-fit: cover;
-      z-index: -1;
-    }
     #lanes {
       position: fixed;
       top: 0;
@@ -262,10 +255,9 @@
 </head>
 <body>
 
-<!-- 背景動画 -->
-<video id="bgVideo" playsinline>
-  <source id="bgSource" src="" type="video/mp4" />
-</video>
+<!-- 背景YouTubeプレイヤー -->
+<div id="player"></div>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <!-- ローディング画面 -->
 <div id="loadingScreen">3</div>
@@ -309,7 +301,7 @@
   </div>
 </div>
 
-<audio id="resultBGM" src="bgm.mp3" loop></audio>
+<audio id="resultBGM" src="/musics/resault.mp3" loop></audio>
 
 <script>
 const approachTime = 1000; // ノーツが判定ラインに到達するまでの時間(ms)
@@ -317,8 +309,7 @@ const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
 
-const bgVideo = document.getElementById('bgVideo');
-const bgSource = document.getElementById('bgSource');
+let ytPlayer;
 const resultBGM = document.getElementById('resultBGM');
 
 const resultOverlay = document.getElementById('resultOverlay');
@@ -327,17 +318,7 @@ const finalScoreTitle = document.getElementById('finalScoreTitle');
 const lanesContainer = document.getElementById('lanes');
 let resultShown = false;
 
-// Get cached MV URL from sessionStorage
-const mvUrl = sessionStorage.getItem('mvUrl');
 
-if (mvUrl) {
-  bgSource.src = mvUrl;
-  bgVideo.load();
-} else {
-  const mvPath = "/musics/" + song;
-  bgSource.src = mvPath;
-  bgVideo.load();
-}
 
 const lanes = document.querySelectorAll('.lane');
 const keyDivs = document.querySelectorAll('.lane-label');
@@ -449,8 +430,7 @@ fetch("/notes/" + chartFile)
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        bgVideo.currentTime = 0;
-        bgVideo.play(); // 曲再生はカウントダウン終了後
+        // YouTube動画はonYouTubeIframeAPIReadyで自動再生される
         startTime = performance.now(); // 曲開始（MV再生）と完全同期
         gameLoop();
       }
@@ -588,12 +568,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-bgVideo.addEventListener('ended', () => {
-  if (!resultShown) {
-    resultShown = true;
-    showResult();
-  }
-});
+
 
 function showResult() {
   // 黒幕表示
@@ -603,7 +578,9 @@ function showResult() {
   lanesContainer.style.display = 'none';
 
   // 動画とノーツの処理停止
-  bgVideo.pause();
+  if (ytPlayer && ytPlayer.pauseVideo) {
+    ytPlayer.pauseVideo();
+  }
 
   // 黒幕ゆっくり降ろす
   setTimeout(() => {
@@ -619,6 +596,38 @@ function showResult() {
       finalScoreTitle.innerHTML = `Score<br>${score}`;
     }, 1000);
   }, 10);
+}
+
+// --- YouTube IFrame API ---
+function onYouTubeIframeAPIReady() {
+  const videoData = JSON.parse(sessionStorage.getItem('videoData'));
+  ytPlayer = new YT.Player('player', {
+    videoId: videoData.id,
+    playerVars: {
+      autoplay: 1,
+      start: videoData.start || 0,
+      controls: 0,
+      mute: 1,
+      playsinline: 1
+    },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady(event) {
+  event.target.playVideo();
+}
+
+function onPlayerStateChange(event) {
+  if (event.data === YT.PlayerState.ENDED) {
+    if (!resultShown) {
+      resultShown = true;
+      showResult();
+    }
+  }
 }
 
 
