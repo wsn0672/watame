@@ -130,6 +130,64 @@
   </main>
 
   <script>
+    let player;
+let playerReady = false;
+
+function onYouTubeIframeAPIReady() {
+  if (player) {
+    player.destroy();
+    player = null;
+  }
+  playerReady = false;
+  player = new YT.Player('player', {
+    height: '100%',
+    width: '100%',
+    videoId: '',
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      modestbranding: 1,
+      rel: 0,
+      loop: 1,
+      playlist: '',
+      mute: 1,
+      iv_load_policy: 3,
+      disablekb: 1,
+    },
+    events: {
+      'onReady': event => {
+        playerReady = true;
+        event.target.mute();
+        event.target.pauseVideo();
+      },
+      'onStateChange': event => {
+        // 必要ならここで状態管理
+      }
+    }
+  });
+}
+
+function playVideo(videoId, startSeconds) {
+  if (!playerReady) {
+    console.warn("Player not ready yet");
+    return;
+  }
+  if (!player) {
+    console.warn("Player is null");
+    return;
+  }
+  if (!userInteracted) {
+    player.mute();
+  } else {
+    player.unMute();
+  }
+  player.loadVideoById({
+    videoId,
+    startSeconds,
+    suggestedQuality: 'hd720',
+  });
+  player.playVideo();
+}
     const pinkOverlay = document.getElementById('pinkOverlay');
     const headerTitle = document.querySelector('header h1');
     const headerNote = document.querySelector('header p');
