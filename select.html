@@ -130,15 +130,6 @@
   </main>
 
   <script>
-window.addEventListener('pageshow', (event) => {
-  if (event.persisted) {
-    if (player && player.destroy) {
-      player.destroy();
-      player = null;
-    }
-    location.reload();
-  }
-});
     const pinkOverlay = document.getElementById('pinkOverlay');
     const headerTitle = document.querySelector('header h1');
     const headerNote = document.querySelector('header p');
@@ -218,6 +209,10 @@ window.addEventListener('pageshow', (event) => {
         const headerNote = document.querySelector('header p');
 
         function playVideo(videoId, startSeconds) {
+          if (!player || typeof player.loadVideoById !== 'function') {
+            console.warn("YouTube player not ready yet");
+            return;
+          }
           if (!userInteracted) {
             player.mute();
           } else {
@@ -231,15 +226,10 @@ window.addEventListener('pageshow', (event) => {
           player.playVideo();
         }
 
-        function stopVideo() {
-          player.pauseVideo();
-          player.seekTo(0, true);
-        }
-
         document.querySelectorAll('.song-list button').forEach(button => {
           button.addEventListener('mouseenter', () => {
             const songFile = button.getAttribute('data-file');
-            const videoInfo = videoDataGlobal[songFile];
+            const videoInfo = videoDataGlobal ? videoDataGlobal[songFile] : null;
             if (videoInfo) {
               pinkOverlay.style.opacity = '0';
               headerTitle.style.color = 'white';
@@ -252,7 +242,10 @@ window.addEventListener('pageshow', (event) => {
             pinkOverlay.style.opacity = '1';
             headerTitle.style.color = 'black';
             headerNote.style.color = 'black';
-            stopVideo();
+            if (player && typeof player.pauseVideo === 'function') {
+              player.pauseVideo();
+              player.seekTo(0, true);
+            }
           });
         });
       });
