@@ -130,12 +130,14 @@
   </main>
 
   <script>
-    window.addEventListener('pageshow', () => {
-  if (player && player.destroy) {
-    player.destroy();
-    player = null;
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    if (player && player.destroy) {
+      player.destroy();
+      player = null;
+    }
+    location.reload();
   }
-  location.reload();  // 確実にページ全体をリロードしてリセット
 });
     const pinkOverlay = document.getElementById('pinkOverlay');
     const headerTitle = document.querySelector('header h1');
