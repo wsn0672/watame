@@ -626,8 +626,6 @@ function onPlayerStateChange(event) {
 
 // クリックで準備完了＆カウントダウン開始
 clickBlocker.addEventListener('click', () => {
-  if (!playerReady) return; // Ignore if player not ready
-
   clickBlocker.style.display = 'none';
   let countdown = 3;
   loadingScreen.textContent = countdown;
