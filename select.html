@@ -25,7 +25,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-gap: 20px;
-      max-width: 900px;
+      max-width: 1200px; /* Increased width to accommodate longer button labels */
       margin: 0 auto;
       padding: 0;
       list-style: none;
@@ -40,7 +40,8 @@
       cursor: pointer;
       transition: transform 0.3s ease, background-color 0.3s ease;
       width: 100%;
-      height: 120px;
+      height: 150px;
+      white-space: nowrap;
     }
     .song-list button:hover {
       background: #ff90b3;
@@ -53,7 +54,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: rgb(255, 233, 237); /* 濃いピンク不透明 */
+      background-color: rgb(255, 233, 237);
       pointer-events: none; /* 背景への干渉防止 */
       z-index: -1;
       opacity: 1;
@@ -126,14 +127,14 @@
       ← もどる
     </button>
     <ul class="song-list">
-      <li><button data-file="mysong.mp4">My song</button></li>
-      <li><button data-file="aimaishokora-te.mp4">愛昧ショコラーテ</button></li>
-      <li><button data-file="watameister.mp4">WataMeister</button></li>
-      <li><button data-file="biri.mp4">ビリ</button></li>
-      <li><button data-file="nowonstep.mp4">Now on step</button></li>
-      <li><button data-file="wataamepop.mp4">WataAme Pop</button></li>
-      <li><button data-file="whatanamazingswing.mp4">What an amazing swing</button></li>
-      <li><button data-file="yumemiruhituji.mp4">夢見る羊</button></li>
+      <li><button data-file="wataamepop.mp4">WataAme Pop<br>★</button></li>
+      <li><button data-file="mysong.mp4">My song<br>★</button></li>
+      <li><button data-file="yumemiruhituji.mp4">夢見る羊<br>★★★</button></li>
+      <li><button data-file="aimaishokora-te.mp4">愛昧ショコラーテ<br>★★★</button></li>
+      <li><button data-file="biri.mp4">ビリ<br>★★★</button></li>
+      <li><button data-file="nowonstep.mp4">Now on step<br>★★★</button></li>
+      <li><button data-file="watameister.mp4">WataMeister<br>★★★★★</button></li>
+      <li><button data-file="whatanamazingswing.mp4">What an amazing swing<br>★★★★★</button></li>
     </ul>
   </main>
 
