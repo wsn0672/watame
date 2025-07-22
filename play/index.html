@@ -352,11 +352,7 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerStateChange(event) {
-  // 0 means ended
-  if (event.data === YT.PlayerState.ENDED && !resultShown) {
-    resultShown = true;
-    setTimeout(showResult, 1000); // 1秒後に結果発表黒幕を表示
-  }
+  // 動画終了時は何もしない
 }
 
 const lanes = document.querySelectorAll('.lane');
@@ -573,8 +569,6 @@ function spawnNote(noteData) {
   const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
   const laneHeight = lanes[laneIndex].offsetHeight;
-
-  // const approachTime = 1000; //いらん
   const speed = targetY / approachTime;
 
   // 譜面のタイムスタンプをdatasetに保存
@@ -625,6 +619,11 @@ function spawnNote(noteData) {
           }
           showJudgment("MISS");
           note.remove();
+          // --- result check for last note ---
+          if (chart.length === 0 && document.querySelectorAll('.note').length === 0 && !resultShown) {
+            resultShown = true;
+            setTimeout(showResult, 500); // 最後のノーツ消失から0.5秒後に結果表示
+          }
         }
       }
     }
@@ -647,6 +646,11 @@ function spawnNote(noteData) {
           }
           showJudgment("MISS");
           note.remove();
+          // --- result check for last note ---
+          if (chart.length === 0 && document.querySelectorAll('.note').length === 0 && !resultShown) {
+            resultShown = true;
+            setTimeout(showResult, 500); // 最後のノーツ消失から0.5秒後に結果表示
+          }
         }
       }
     }
@@ -705,7 +709,7 @@ function showResult() {
 
     // 数字フェードイン（タイトルの後）
     setTimeout(() => {
-      finalScoreTitle.innerHTML = `Score<br>${score}<br>Rank ${finalRank}`;
+      finalScoreTitle.innerHTML = `スコア<br>${score}<br>ランク<br>${finalRank}`;
     }, 1000);
   }, 10);
 }
