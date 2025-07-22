@@ -454,6 +454,18 @@ fetch('/musics/videoids.json')
     videoIdMap = map;
     // 譜面JSONを曲名に基づいて取得
     return fetch("/notes/" + chartFile)
+      .then(async res => {
+    console.log('レスポンスステータス:', res.status);
+    const text = await res.text();
+    console.log('レスポンス本文:', text);
+
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('JSONパース失敗:', e);
+      throw new Error("JSONパースエラー");
+    }
+  })
   })
   .then(res => {
     if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
