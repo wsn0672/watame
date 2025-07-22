@@ -688,18 +688,13 @@ function gameLoop() {
 // 動画終了はonPlayerStateChangeで処理
 
 function showResult() {
-  // 黒幕を表示状態にしてからアニメーション開始
+  // 黒幕を表示状態に
   resultOverlay.style.display = 'flex';
 
-  // 強制再描画でスタイルの反映を確実にする
-  void resultOverlay.offsetWidth;
-
-  // 黒幕降りるアニメーション開始
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      resultOverlay.classList.add('show');
-    });
-  });
+  // 少し遅らせてからアニメーション開始
+  setTimeout(() => {
+    resultOverlay.classList.add('show');
+  }, 50);
 
   // レーン非表示
   lanesContainer.style.display = 'none';
