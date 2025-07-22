@@ -686,19 +686,17 @@ function gameLoop() {
 }
 
 // 動画終了はonPlayerStateChangeで処理
-
 function showResult() {
   // 黒幕初期位置に戻す
   resultOverlay.classList.remove('show');
-
-  // 黒幕表示（ただしすぐ降りない）
   resultOverlay.style.display = 'flex';
 
-  // 強制再描画（ここが重要）
-  void resultOverlay.offsetHeight;
-
-  // 黒幕降ろす
-  resultOverlay.classList.add('show');
+  // 次のフレームでアニメーション開始（黒幕降りる）
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      resultOverlay.classList.add('show');
+    });
+  });
 
   // BGM再生
   resultBGM.currentTime = 0;
@@ -710,15 +708,12 @@ function showResult() {
   // ランク計算
   finalRank = calculateRank();
 
-  // Scoreタイトルフェードイン
-  finalScoreTitle.style.opacity = '1';
-
-  // 数字フェードイン（タイトルの後）
+  // スコア表示は遅延して更新
   setTimeout(() => {
     finalScoreTitle.innerHTML = `スコア<br>${score}<br>ランク<br>${finalRank}`;
+    finalScoreTitle.style.opacity = '1';
   }, 1000);
 }
-
 //Xでシェア
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
