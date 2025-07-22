@@ -352,7 +352,11 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerStateChange(event) {
-  // 動画終了時は何もしない
+  if (event.data === YT.PlayerState.ENDED) {
+    if (player && typeof player.pauseVideo === 'function') {
+      player.pauseVideo();
+    }
+  }
 }
 
 const lanes = document.querySelectorAll('.lane');
@@ -662,9 +666,9 @@ function calculateRank() {
   if (maxScore === 0) return 'C';
   const ratio = score / maxScore;
   if (ratio >= 1.0) return '神';
-  if (ratio >= 0.8) return 'S';
-  if (ratio >= 0.6) return 'A';
-  if (ratio >= 0.3) return 'B';
+  if (ratio >= 0.6) return 'S';
+  if (ratio >= 0.4) return 'A';
+  if (ratio >= 0.2) return 'B';
   return 'C';
 }
 
@@ -689,10 +693,7 @@ function showResult() {
   // レーン非表示
   lanesContainer.style.display = 'none';
 
-  // 動画とノーツの処理停止
-  if (player && typeof player.pauseVideo === 'function') {
-    player.pauseVideo();
-  }
+  // ノーツの処理停止のみ（動画は最後まで再生）
 
   // ランク計算
   finalRank = calculateRank();
