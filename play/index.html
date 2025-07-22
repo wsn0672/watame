@@ -499,6 +499,11 @@ fetch('/musics/videoids.json')
       }
     }, 1000);
   })
+  .catch(err => {
+    console.error(err);
+    alert("譜面ファイルが見つかりませんでした: " + chartFile);
+  });
+
 function getVideoIdForSong(songFileName) {
   const videoInfo = videoIdMap[songFileName];
   if (videoInfo) {
