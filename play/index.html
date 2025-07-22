@@ -460,6 +460,7 @@ fetch('/musics/videoids.json')
     return res.json();
   })
   .then(data => {
+    console.log("取得したJSONデータ:", data);
     chart = data;
 
     // Preload and pause the video at the start of the countdown
@@ -498,7 +499,7 @@ fetch('/musics/videoids.json')
     }, 1000);
   })
   .catch(err => {
-    console.error(err);
+    console.error("譜面ファイル取得またはパース時のエラー:", err);
     alert("譜面ファイルが見つかりませんでした: " + chartFile);
   });
 
