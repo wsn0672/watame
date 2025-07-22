@@ -355,7 +355,7 @@ function onPlayerStateChange(event) {
   // 0 means ended
   if (event.data === YT.PlayerState.ENDED && !resultShown) {
     resultShown = true;
-    showResult();
+    setTimeout(showResult, 1000); // 1秒後に結果発表黒幕を表示
   }
 }
 
@@ -367,7 +367,6 @@ const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
-let lastNoteSpawnTime = 0;
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -547,7 +546,6 @@ function spawnPreNotes() {
 
 // ノーツ生成
 function spawnNote(noteData) {
-  lastNoteSpawnTime = performance.now();
   let laneIndex = Math.floor(Math.random() * 4);
 
   // 毎回ランダムに色を決定
@@ -663,7 +661,7 @@ function gameLoop() {
 
 function showResult() {
   // 黒幕表示
-  resultOverlay.style.display = 'flex';
+  // resultOverlay.style.display = 'flex';
 
   // レーン非表示
   lanesContainer.style.display = 'none';
@@ -673,10 +671,9 @@ function showResult() {
     player.pauseVideo();
   }
 
-  const lastNoteTime = lastNoteSpawnTime || performance.now();
-  const delay = Math.max(0, 1000 - (performance.now() - lastNoteTime));
-
+  // 黒幕降ろす
   setTimeout(() => {
+    resultOverlay.style.display = 'flex';
     resultOverlay.classList.add('show');
     resultBGM.currentTime = 0;
     resultBGM.play();
@@ -688,7 +685,7 @@ function showResult() {
     setTimeout(() => {
       finalScoreTitle.innerHTML = `Score<br>${score}`;
     }, 1000);
-  }, delay);
+  }, 10);
 }
 
 //Xでシェア
