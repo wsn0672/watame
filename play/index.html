@@ -594,10 +594,8 @@ function spawnNote(noteData) {
 
     function animate() {
       let now = performance.now();
-      let elapsed = now - startTime;
-      let timeDiff = noteData.time - elapsed;
-      let pos = (approachTime - timeDiff) * speed;
-      if (pos < 0) pos = 0;
+      let elapsed = now - start;
+      let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
       if (!slideDone && pos > targetY / 3) { // 1/3あたりで移動開始
@@ -616,7 +614,7 @@ function spawnNote(noteData) {
 
       if (pos < laneHeight) {
         requestAnimationFrame(animate);
-      } else if (pos >= laneHeight) {
+      } else {
         if (document.body.contains(note)) {
           if (note.classList.contains('double')) {
             score -= Math.floor(score * 0.2);
@@ -637,15 +635,13 @@ function spawnNote(noteData) {
   } else {
     function animate() {
       let now = performance.now();
-      let elapsed = now - startTime;
-      let timeDiff = noteData.time - elapsed;
-      let pos = (approachTime - timeDiff) * speed;
-      if (pos < 0) pos = 0;
+      let elapsed = now - start;
+      let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
       if (pos < laneHeight) {
         requestAnimationFrame(animate);
-      } else if (pos >= laneHeight) {
+      } else {
         if (document.body.contains(note)) {
           if (note.classList.contains('double')) {
             score -= Math.floor(score * 0.2);
