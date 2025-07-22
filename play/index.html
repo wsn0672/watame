@@ -452,23 +452,17 @@ fetch('/musics/videoids.json')
   .then(r => r.json())
   .then(map => {
     videoIdMap = map;
-    // 譜面JSONを曲名に基づいて取得
-    return fetch("/notes/" + chartFile)
+    return fetch("/notes/" + chartFile);
   })
-  .then(res => {
-    if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
-    return res.json();
-  })
+  .then(res => res.json())
   .then(data => {
-    console.log("取得したJSONデータ:", data);
     chart = data;
 
-    // Preload and pause the video at the start of the countdown
     const videoId = getVideoIdForSong(song);
     player.loadVideoById({ videoId: videoId, startSeconds: 0 });
     player.pauseVideo();
 
-    spawnPreNotes(); // 開始1秒以内のノーツを先に表示
+    spawnPreNotes();
 
     let countdown = 3;
     loadingScreen.textContent = countdown;
@@ -480,7 +474,6 @@ fetch('/musics/videoids.json')
       } else {
         clearInterval(countdownInterval);
         loadingScreen.style.display = 'none';
-        // YouTube動画再生
         if (videoReady) {
           player.playVideo();
           startTime = performance.now();
@@ -497,26 +490,6 @@ fetch('/musics/videoids.json')
         }
       }
     }, 1000);
-  })
-  .catch(err => {
-    console.error("譜面読み込みエラー:", err);
-    chart = [];
-    loadingScreen.style.display = 'none';
-    // YouTube動画再生＆ゲームループ開始
-    if (videoReady) {
-      player.playVideo();
-      startTime = performance.now();
-      gameLoop();
-    } else {
-      let wait = setInterval(() => {
-        if (videoReady) {
-          clearInterval(wait);
-          player.playVideo();
-          startTime = performance.now();
-          gameLoop();
-        }
-      }, 100);
-    }
   });
 
 function getVideoIdForSong(songFileName) {
