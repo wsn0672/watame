@@ -367,6 +367,7 @@ const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
+let lastNoteSpawnTime = 0;
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -546,6 +547,7 @@ function spawnPreNotes() {
 
 // ノーツ生成
 function spawnNote(noteData) {
+  lastNoteSpawnTime = performance.now();
   let laneIndex = Math.floor(Math.random() * 4);
 
   // 毎回ランダムに色を決定
@@ -671,7 +673,9 @@ function showResult() {
     player.pauseVideo();
   }
 
-  // 黒幕降ろす
+  const lastNoteTime = lastNoteSpawnTime || performance.now();
+  const delay = Math.max(0, 1000 - (performance.now() - lastNoteTime));
+
   setTimeout(() => {
     resultOverlay.classList.add('show');
     resultBGM.currentTime = 0;
@@ -684,7 +688,7 @@ function showResult() {
     setTimeout(() => {
       finalScoreTitle.innerHTML = `Score<br>${score}`;
     }, 1000);
-  }, 10);
+  }, delay);
 }
 
 //Xでシェア
