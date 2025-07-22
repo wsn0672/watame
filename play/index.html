@@ -352,7 +352,11 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerStateChange(event) {
-  // Do nothing
+  // 0 means ended
+  if (event.data === YT.PlayerState.ENDED && !resultShown) {
+    resultShown = true;
+    setTimeout(showResult, 1000); // 1秒後に結果発表黒幕を表示
+  }
 }
 
 const lanes = document.querySelectorAll('.lane');
@@ -363,6 +367,8 @@ const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
+let maxScore = 0;
+let finalRank = '';
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -394,10 +400,6 @@ document.addEventListener('keydown', e => {
     if (notes.length === 0) {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
-      // Check if all notes are gone and chart is empty
-      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
-        setTimeout(showResult, 500);
-      }
       return;
     }
 
@@ -422,10 +424,6 @@ document.addEventListener('keydown', e => {
     if (!closestNote) {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
-      // Check if all notes are gone and chart is empty
-      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
-        setTimeout(showResult, 500);
-      }
       return;
     }
 
@@ -445,17 +443,9 @@ document.addEventListener('keydown', e => {
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
 
       closestNote.remove();
-      // Check if all notes are gone and chart is empty
-      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
-        setTimeout(showResult, 500);
-      }
     } else {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
-      // Check if all notes are gone and chart is empty
-      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
-        setTimeout(showResult, 500);
-      }
     }
   }
 });
@@ -569,6 +559,13 @@ function spawnNote(noteData) {
     noteType = "double";
   }
 
+  // スコア上限加算
+  if (noteType === "double") {
+    maxScore += 2000;
+  } else {
+    maxScore += 1000;
+  }
+
   const note = document.createElement('div');
   note.classList.add('note', noteType);
 
@@ -576,9 +573,15 @@ function spawnNote(noteData) {
   const targetY = judgmentLine.offsetTop + judgmentLine.offsetHeight / 2;
 
   const laneHeight = lanes[laneIndex].offsetHeight;
+
+  // const approachTime = 1000; //いらん
   const speed = targetY / approachTime;
+
+  // 譜面のタイムスタンプをdatasetに保存
   note.dataset.time = noteData.time;
+
   lanes[laneIndex].appendChild(note);
+
   let start = performance.now();
   let slideDone = false;
 
@@ -622,10 +625,6 @@ function spawnNote(noteData) {
           }
           showJudgment("MISS");
           note.remove();
-          // Check if all notes are gone and chart is empty
-          if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
-            setTimeout(showResult, 500);
-          }
         }
       }
     }
@@ -648,15 +647,21 @@ function spawnNote(noteData) {
           }
           showJudgment("MISS");
           note.remove();
-          // Check if all notes are gone and chart is empty
-          if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
-            setTimeout(showResult, 500);
-          }
         }
       }
     }
     animate();
   }
+}
+
+function calculateRank() {
+  if (maxScore === 0) return 'C';
+  const ratio = score / maxScore;
+  if (ratio >= 1.0) return '神';
+  if (ratio >= 0.8) return 'S';
+  if (ratio >= 0.6) return 'A';
+  if (ratio >= 0.3) return 'B';
+  return 'C';
 }
 
 function gameLoop() {
@@ -674,9 +679,8 @@ function gameLoop() {
 // 動画終了はonPlayerStateChangeで処理
 
 function showResult() {
-  // 黒幕表示を一旦非表示のままにしておく
-  resultOverlay.style.display = 'flex';
-  resultOverlay.classList.remove('show');
+  // 黒幕表示
+  // resultOverlay.style.display = 'flex';
 
   // レーン非表示
   lanesContainer.style.display = 'none';
@@ -686,8 +690,12 @@ function showResult() {
     player.pauseVideo();
   }
 
-  // 0.5秒後に黒幕を降ろす
+  // ランク計算
+  finalRank = calculateRank();
+
+  // 黒幕降ろす
   setTimeout(() => {
+    resultOverlay.style.display = 'flex';
     resultOverlay.classList.add('show');
     resultBGM.currentTime = 0;
     resultBGM.play();
@@ -697,15 +705,15 @@ function showResult() {
 
     // 数字フェードイン（タイトルの後）
     setTimeout(() => {
-      finalScoreTitle.innerHTML = `Score<br>${score}`;
+      finalScoreTitle.innerHTML = `Score<br>${score}<br>Rank ${finalRank}`;
     }, 1000);
-  }, 500);
+  }, 10);
 }
 
 //Xでシェア
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
-  const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓\n`);
+  const text = encodeURIComponent(`このゲームで ${score}点取って${finalRank}ランクだったよ！\nわためぇソングで遊べる音ゲー ↓↓↓\n`);
   const shareUrl = `https://x.com/intent/tweet?text=${text}%20https://わためぇ自由研究.wsn0672.org`;
   window.open(shareUrl, '_blank');
 });
