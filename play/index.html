@@ -525,6 +525,14 @@ function getVideoIdForSong(songFileName) {
 let chart = [];
 let startTime = 0;
 
+function waitForPlayerReady(callback) {
+  if (videoReady) {
+    callback();
+  } else {
+    setTimeout(() => waitForPlayerReady(callback), 100);
+  }
+}
+
 // 開始時にアプローチタイムより早いノーツを先に生成する
 function spawnPreNotes() {
   for (let i = 0; i < chart.length; i++) {
@@ -696,10 +704,3 @@ document.getElementById('replayButton').addEventListener('click', () => {
 </body>
 </html>
 <!--WD!!!!-->
-function waitForPlayerReady(callback) {
-  if (videoReady) {
-    callback();
-  } else {
-    setTimeout(() => waitForPlayerReady(callback), 100);
-  }
-}
