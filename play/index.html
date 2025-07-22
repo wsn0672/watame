@@ -660,8 +660,9 @@ function gameLoop() {
 // 動画終了はonPlayerStateChangeで処理
 
 function showResult() {
-  // 黒幕表示
-  // resultOverlay.style.display = 'flex';
+  // 黒幕表示を一旦非表示のままにしておく
+  resultOverlay.style.display = 'flex';
+  resultOverlay.classList.remove('show');
 
   // レーン非表示
   lanesContainer.style.display = 'none';
@@ -671,9 +672,8 @@ function showResult() {
     player.pauseVideo();
   }
 
-  // 黒幕降ろす
+  // 0.5秒後に黒幕を降ろす
   setTimeout(() => {
-    resultOverlay.style.display = 'flex';
     resultOverlay.classList.add('show');
     resultBGM.currentTime = 0;
     resultBGM.play();
@@ -685,7 +685,7 @@ function showResult() {
     setTimeout(() => {
       finalScoreTitle.innerHTML = `Score<br>${score}`;
     }, 1000);
-  }, 10);
+  }, 500);
 }
 
 //Xでシェア
