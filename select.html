@@ -106,6 +106,10 @@
 </head>
 <body>
   
+  <div id="interactionOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; font-family: 'Noto Sans JP', sans-serif;">
+    <button id="unlockButton" style="font-size: 2rem; padding: 20px 40px; background: #ffb6c1; color: #222; border: none; border-radius: 10px; cursor: pointer;">ここをクリックして進む...</button>
+  </div>
+
   <header>
     <h1>楽曲選択</h1>
     <p>※音量注意</p> 
@@ -164,6 +168,17 @@
     let player;
     let userInteracted = false;
     let videoDataGlobal = null;
+
+    const interactionOverlay = document.getElementById('interactionOverlay');
+    const unlockButton = document.getElementById('unlockButton');
+
+    unlockButton.addEventListener('click', () => {
+      interactionOverlay.style.display = 'none';
+      userInteracted = true;
+      if (player && typeof player.unMute === 'function') {
+        player.unMute();
+      }
+    });
 
     function onYouTubeIframeAPIReady() {
       // プレイヤー破棄
