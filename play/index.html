@@ -455,61 +455,54 @@ fetch('/musics/videoids.json')
     // 譜面JSONを曲名に基づいて取得
     return fetch("/notes/" + chartFile)
       .then(async res => {
-    console.log('レスポンスステータス:', res.status);
-    const text = await res.text();
-    console.log('レスポンス本文:', text);
+        console.log('レスポンスステータス:', res.status);
+        const text = await res.text();
+        console.log('レスポンス本文:', text);
 
-    try {
-      return JSON.parse(text);
-    } catch (e) {
-      console.error('JSONパース失敗:', e);
-      throw new Error("JSONパースエラー");
-    }
-  })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("譜面ファイル読み込み失敗");
-    return res.json();
-  })
-  .then(data => {
-    chart = data;
+        try {
+          const data = JSON.parse(text);
+          chart = data;
+          spawnPreNotes(); // 開始1秒以内のノーツを先に表示
 
-    spawnPreNotes(); // 開始1秒以内のノーツを先に表示
+          let countdown = 3;
+          loadingScreen.textContent = countdown;
 
-    let countdown = 3;
-    loadingScreen.textContent = countdown;
-
-    // カウントダウン中にYouTube動画を先読みしておく
-    const videoId = getVideoIdForSong(song);
-    player.loadVideoById({ videoId: videoId, startSeconds: 0 });
-    player.pauseVideo();
-
-    const countdownInterval = setInterval(() => {
-      countdown--;
-      if (countdown > 0) {
-        loadingScreen.textContent = countdown;
-      } else {
-        clearInterval(countdownInterval);
-        loadingScreen.style.display = 'none';
-        // YouTube動画再生
-        if (videoReady) {
+          // カウントダウン中にYouTube動画を先読みしておく
           const videoId = getVideoIdForSong(song);
-          player.playVideo();  // 事前ロード済なのでここでは再生のみ
-          startTime = performance.now();
-          gameLoop();
-        } else {
-          let wait = setInterval(() => {
-            if (videoReady) {
-              clearInterval(wait);
-              const videoId = getVideoIdForSong(song);
-              player.playVideo();
-              startTime = performance.now();
-              gameLoop();
+          player.loadVideoById({ videoId: videoId, startSeconds: 0 });
+          player.pauseVideo();
+
+          const countdownInterval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+              loadingScreen.textContent = countdown;
+            } else {
+              clearInterval(countdownInterval);
+              loadingScreen.style.display = 'none';
+              if (videoReady) {
+                const videoId = getVideoIdForSong(song);
+                player.playVideo();
+                startTime = performance.now();
+                gameLoop();
+              } else {
+                let wait = setInterval(() => {
+                  if (videoReady) {
+                    clearInterval(wait);
+                    const videoId = getVideoIdForSong(song);
+                    player.playVideo();
+                    startTime = performance.now();
+                    gameLoop();
+                  }
+                }, 100);
+              }
             }
-          }, 100);
+          }, 1000);
+
+        } catch (e) {
+          console.error('JSONパース失敗:', e);
+          alert("譜面ファイルが壊れています: " + chartFile);
         }
-      }
-    }, 1000);
+      })
   })
   .catch(err => {
     console.error(err);
