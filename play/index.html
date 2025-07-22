@@ -502,10 +502,13 @@ fetch('/musics/videoids.json')
   });
 
 function getVideoIdForSong(songFileName) {
-  // Remove extension
-  let base = songFileName.replace(/\.[^/.]+$/, "");
-  // try exact match, fallback to first value
-  return videoIdMap[base] || Object.values(videoIdMap)[0] || "";
+  const videoInfo = videoIdMap[songFileName];
+  if (videoInfo) {
+    return videoInfo.videoId;
+  } else {
+    console.warn("動画IDが見つかりません:", songFileName);
+    return "";
+  }
 }
 
 let chart = [];
@@ -524,7 +527,7 @@ function spawnPreNotes() {
 
 // ノーツ生成
 function spawnNote(noteData) {
-  let laneIndex = Math.floor(Math.random() * 4);  // 0〜3のランダム
+  let laneIndex = Math.floor(Math.random() * 4);
 
   // 毎回ランダムに色を決定
   const rand = Math.random();
@@ -543,7 +546,7 @@ function spawnNote(noteData) {
 
   const laneHeight = lanes[laneIndex].offsetHeight;
 
-  // const approachTime = 1000; // 1秒で判定エリアに到達（グローバル変数を使用）
+  // const approachTime = 1000; //いらん
   const speed = targetY / approachTime;
 
   // 譜面のタイムスタンプをdatasetに保存
@@ -569,7 +572,7 @@ function spawnNote(noteData) {
       let pos = elapsed * speed;
       note.style.top = pos + 'px';
 
-      if (!slideDone && pos > targetY / 3) { // 1/3あたりに移動開始
+      if (!slideDone && pos > targetY / 3) { // 1/3あたりで移動開始
         note.style.transition = "left 0.5s ease, transform 0.5s ease";
         note.style.left = (shift * 100) + "%";
 
@@ -635,7 +638,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// 動画終了時はYouTube APIのonPlayerStateChangeで処理
+// 動画終了はonPlayerStateChangeで処理
 
 function showResult() {
   // 黒幕表示
@@ -649,7 +652,7 @@ function showResult() {
     player.pauseVideo();
   }
 
-  // 黒幕ゆっくり降ろす
+  // 黒幕降ろす
   setTimeout(() => {
     resultOverlay.classList.add('show');
     resultBGM.currentTime = 0;
@@ -665,10 +668,7 @@ function showResult() {
   }, 10);
 }
 
-
-
-
-
+//Xでシェア
 document.getElementById('shareXButton').addEventListener('click', () => {
   const url = encodeURIComponent(location.href);
   const text = encodeURIComponent(`このゲームで ${score}点取ったよ！\nわためぇソングで遊べる音ゲー ↓↓↓\n`);
@@ -676,6 +676,7 @@ document.getElementById('shareXButton').addEventListener('click', () => {
   window.open(shareUrl, '_blank');
 });
 
+//もう一度プレイ
 document.getElementById('replayButton').addEventListener('click', () => {
   window.location.href = '/select.html';
 });
@@ -683,3 +684,4 @@ document.getElementById('replayButton').addEventListener('click', () => {
 <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
+<!--WD!!!!-->
