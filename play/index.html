@@ -352,11 +352,7 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerStateChange(event) {
-  if (event.data === YT.PlayerState.ENDED) {
-    if (player && typeof player.pauseVideo === 'function') {
-      player.pauseVideo();
-    }
-  }
+  // Do nothing
 }
 
 const lanes = document.querySelectorAll('.lane');
@@ -367,8 +363,7 @@ const judgmentText = document.getElementById('judgmentText');
 const loadingScreen = document.getElementById('loadingScreen');
 const hitEffects = document.querySelectorAll('.hitEffect');
 let score = 0;
-let maxScore = 0;
-let finalRank = '';
+let maxPossibleScore = 0;
 
 function showJudgment(text) {
   judgmentText.textContent = text;
@@ -400,6 +395,10 @@ document.addEventListener('keydown', e => {
     if (notes.length === 0) {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
+      // Check if all notes are gone and chart is empty
+      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
+        setTimeout(showResult, 500);
+      }
       return;
     }
 
@@ -424,6 +423,10 @@ document.addEventListener('keydown', e => {
     if (!closestNote) {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
+      // Check if all notes are gone and chart is empty
+      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
+        setTimeout(showResult, 500);
+      }
       return;
     }
 
@@ -443,9 +446,17 @@ document.addEventListener('keydown', e => {
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
 
       closestNote.remove();
+      // Check if all notes are gone and chart is empty
+      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
+        setTimeout(showResult, 500);
+      }
     } else {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
+      // Check if all notes are gone and chart is empty
+      if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
+        setTimeout(showResult, 500);
+      }
     }
   }
 });
@@ -561,9 +572,9 @@ function spawnNote(noteData) {
 
   // スコア上限加算
   if (noteType === "double") {
-    maxScore += 2000;
+    maxPossibleScore += 2000;
   } else {
-    maxScore += 1000;
+    maxPossibleScore += 1000;
   }
 
   const note = document.createElement('div');
@@ -574,12 +585,8 @@ function spawnNote(noteData) {
 
   const laneHeight = lanes[laneIndex].offsetHeight;
   const speed = targetY / approachTime;
-
-  // 譜面のタイムスタンプをdatasetに保存
   note.dataset.time = noteData.time;
-
   lanes[laneIndex].appendChild(note);
-
   let start = performance.now();
   let slideDone = false;
 
@@ -623,10 +630,8 @@ function spawnNote(noteData) {
           }
           showJudgment("MISS");
           note.remove();
-          // --- result check for last note ---
-          if (chart.length === 0 && document.querySelectorAll('.note').length === 0 && !resultShown) {
-            resultShown = true;
-            setTimeout(showResult, 500); // 最後のノーツ消失から0.5秒後に結果表示
+          if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
+            setTimeout(showResult, 500);
           }
         }
       }
@@ -650,27 +655,15 @@ function spawnNote(noteData) {
           }
           showJudgment("MISS");
           note.remove();
-          // --- result check for last note ---
-          if (chart.length === 0 && document.querySelectorAll('.note').length === 0 && !resultShown) {
-            resultShown = true;
-            setTimeout(showResult, 500); // 最後のノーツ消失から0.5秒後に結果表示
+          // Check if all notes are gone and chart is empty
+          if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
+            setTimeout(showResult, 500);
           }
         }
       }
     }
     animate();
   }
-}
-
-//ランク付け
-function calculateRank() {
-  if (maxScore === 0) return 'C';
-  const ratio = score / maxScore;
-  if (ratio >= 1.0) return '神';
-  if (ratio >= 0.6) return 'S';
-  if (ratio >= 0.4) return 'A';
-  if (ratio >= 0.2) return 'B';
-  return 'C';
 }
 
 function gameLoop() {
@@ -688,33 +681,60 @@ function gameLoop() {
 // 動画終了はonPlayerStateChangeで処理
 
 function showResult() {
-  // 黒幕を表示状態に
+  // 黒幕表示を一旦非表示のままにしておく
   resultOverlay.style.display = 'flex';
-
-  // 少し遅らせてからアニメーション開始
-  setTimeout(() => {
-    resultOverlay.classList.add('show');
-  }, 50);
+  resultOverlay.classList.remove('show');
 
   // レーン非表示
   lanesContainer.style.display = 'none';
 
-  // ランク計算
-  finalRank = calculateRank();
+  // 動画とノーツの処理停止
+  if (player && typeof player.pauseVideo === 'function') {
+    player.pauseVideo();
+  }
 
-  // スコア表示はすぐに更新してopacityをCSSで管理
-  finalScoreTitle.innerHTML = `スコア<br>${score}<br>ランク<br>${finalRank}`;
-  finalScoreTitle.style.opacity = '1';
+  // 0.5秒後に黒幕を降ろす
+  setTimeout(() => {
+    resultOverlay.classList.add('show');
+    resultBGM.currentTime = 0;
+    resultBGM.play();
 
-  // BGM再生
-  resultBGM.currentTime = 0;
-  resultBGM.play();
+    // Scoreタイトルフェードイン
+    finalScoreTitle.style.opacity = '1';
+
+    // 数字フェードイン（タイトルの後）
+    setTimeout(() => {
+      finalScoreTitle.innerHTML = `Score<br>${score}`;
+
+      // ランク判定と表示
+      const scoreRatio = maxPossibleScore > 0 ? (score / maxPossibleScore) : 0;
+      let rank = "C";
+      if (scoreRatio >= 1.0) {
+        rank = "神";
+      } else if (scoreRatio >= 0.6) {
+        rank = "S";
+      } else if (scoreRatio >= 0.4) {
+        rank = "A";
+      } else if (scoreRatio >= 0.2) {
+        rank = "B";
+      }
+
+      const rankElement = document.createElement('div');
+      rankElement.style.fontSize = '3rem';
+      rankElement.style.marginTop = '20px';
+      rankElement.textContent = `Rank ${rank}`;
+      finalScoreTitle.appendChild(rankElement);
+      // スコアとランクをグローバル変数に保存
+      window.__lastRank = rank;
+    }, 1000);
+  }, 500);
 }
 
 //Xでシェア
 document.getElementById('shareXButton').addEventListener('click', () => {
-  const url = encodeURIComponent(location.href);
-  const text = encodeURIComponent(`このゲームで ${score}点取って${finalRank}ランクだったよ！\nわためぇソングで遊べる音ゲー ↓↓↓\n`);
+  // ランクを再取得
+  let rank = window.__lastRank || "C";
+  const text = encodeURIComponent(`このゲームで ${score}点取って${rank}ランクだったよ！\nわためぇソングで遊べる音ゲー ↓↓↓\n`);
   const shareUrl = `https://x.com/intent/tweet?text=${text}%20https://わためぇ自由研究.wsn0672.org`;
   window.open(shareUrl, '_blank');
 });
