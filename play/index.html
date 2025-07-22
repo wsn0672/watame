@@ -662,6 +662,7 @@ function spawnNote(noteData) {
   }
 }
 
+//ランク付け
 function calculateRank() {
   if (maxScore === 0) return 'C';
   const ratio = score / maxScore;
@@ -687,31 +688,35 @@ function gameLoop() {
 // 動画終了はonPlayerStateChangeで処理
 
 function showResult() {
-  // 黒幕表示
+  // 黒幕初期位置に戻す
+  resultOverlay.classList.remove('show');
+
+  // 黒幕表示（ただしすぐ降りない）
   resultOverlay.style.display = 'flex';
+
+  // 強制再描画（ここが重要）
+  void resultOverlay.offsetHeight;
+
+  // 黒幕降ろす
+  resultOverlay.classList.add('show');
+
+  // BGM再生
+  resultBGM.currentTime = 0;
+  resultBGM.play();
 
   // レーン非表示
   lanesContainer.style.display = 'none';
 
-  // ノーツの処理停止のみ（動画は最後まで再生）
-
   // ランク計算
   finalRank = calculateRank();
 
-  // 黒幕降ろす
+  // Scoreタイトルフェードイン
+  finalScoreTitle.style.opacity = '1';
+
+  // 数字フェードイン（タイトルの後）
   setTimeout(() => {
-    resultOverlay.classList.add('show');
-    resultBGM.currentTime = 0;
-    resultBGM.play();
-
-    // Scoreタイトルフェードイン
-    finalScoreTitle.style.opacity = '1';
-
-    // 数字フェードイン（タイトルの後）
-    setTimeout(() => {
-      finalScoreTitle.innerHTML = `スコア<br>${score}<br>ランク<br>${finalRank}`;
-    }, 1000);
-  }, 10);
+    finalScoreTitle.innerHTML = `スコア<br>${score}<br>ランク<br>${finalRank}`;
+  }, 1000);
 }
 
 //Xでシェア
