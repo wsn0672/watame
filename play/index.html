@@ -462,6 +462,11 @@ fetch('/musics/videoids.json')
   .then(data => {
     chart = data;
 
+    // Preload and pause the video at the start of the countdown
+    const videoId = getVideoIdForSong(song);
+    player.loadVideoById({ videoId: videoId, startSeconds: 0 });
+    player.pauseVideo();
+
     spawnPreNotes(); // 開始1秒以内のノーツを先に表示
 
     let countdown = 3;
@@ -476,8 +481,6 @@ fetch('/musics/videoids.json')
         loadingScreen.style.display = 'none';
         // YouTube動画再生
         if (videoReady) {
-          const videoId = getVideoIdForSong(song);
-          player.loadVideoById({ videoId: videoId, startSeconds: 0 });
           player.playVideo();
           startTime = performance.now();
           gameLoop();
@@ -485,8 +488,6 @@ fetch('/musics/videoids.json')
           let wait = setInterval(() => {
             if (videoReady) {
               clearInterval(wait);
-              const videoId = getVideoIdForSong(song);
-              player.loadVideoById({ videoId: videoId, startSeconds: 0 });
               player.playVideo();
               startTime = performance.now();
               gameLoop();
