@@ -311,7 +311,7 @@
 <audio id="resultBGM" src="/musics/resault.mp3" loop></audio>
 
 <script>
-const approachTime = 500; // ノーツが判定ラインに到達するまでの時間(ms)
+const approachTime = 800; // ノーツが判定ラインに到達するまでの時間(ms)
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
