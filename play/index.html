@@ -497,10 +497,6 @@ fetch('/musics/videoids.json')
         }
       }
     }, 1000);
-  })
-  .catch(err => {
-    console.error("譜面ファイル取得またはパース時のエラー:", err);
-    alert("譜面ファイルが見つかりませんでした: " + chartFile);
   });
 
 function getVideoIdForSong(songFileName) {
