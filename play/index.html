@@ -311,7 +311,7 @@
 <audio id="resultBGM" src="/musics/resault.mp3" loop></audio>
 
 <script>
-const approachTime = 1000; // ノーツが判定ラインに到達するまでの時間(ms)
+const approachTime = 500; // ノーツが判定ラインに到達するまでの時間(ms)
 const params = new URLSearchParams(location.search);
 const song = params.get('song') || "default.mp4";
 const chartFile = params.get('chart') || song.replace(/\.[^/.]+$/, ".json"); // 曲名からjsonファイル名を生成
@@ -428,7 +428,7 @@ document.addEventListener('keydown', e => {
     const now = performance.now() - startTime;
     const timeDiff = now - closestNoteTime;
 
-    if (closestDistance < 100) {  // 判定を甘く (±1個分ぐらい)
+    if (closestDistance < 200) {  // 判定をさらに甘く
       const baseScore = 2000;
       const msDiff = Math.abs(Math.round(timeDiff));
       let noteScore = baseScore - (msDiff * 10);
