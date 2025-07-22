@@ -460,7 +460,8 @@ fetch('/musics/videoids.json')
         console.log('レスポンス本文:', text);
 
         try {
-          const data = JSON.parse(text);
+          const cleanText = text.trim().replace(/^\uFEFF/, '');  // 余計なBOMや空白を削除
+          const data = JSON.parse(cleanText);
           chart = data;
           spawnPreNotes(); // 開始1秒以内のノーツを先に表示
 
