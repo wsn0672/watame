@@ -688,7 +688,7 @@ function gameLoop() {
 
 function showResult() {
   // 黒幕表示
-  // resultOverlay.style.display = 'flex';
+  resultOverlay.style.display = 'flex';
 
   // レーン非表示
   lanesContainer.style.display = 'none';
@@ -700,7 +700,6 @@ function showResult() {
 
   // 黒幕降ろす
   setTimeout(() => {
-    resultOverlay.style.display = 'flex';
     resultOverlay.classList.add('show');
     resultBGM.currentTime = 0;
     resultBGM.play();
