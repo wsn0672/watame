@@ -497,6 +497,26 @@ fetch('/musics/videoids.json')
         }
       }
     }, 1000);
+  })
+  .catch(err => {
+    console.error("譜面読み込みエラー:", err);
+    chart = [];
+    loadingScreen.style.display = 'none';
+    // YouTube動画再生＆ゲームループ開始
+    if (videoReady) {
+      player.playVideo();
+      startTime = performance.now();
+      gameLoop();
+    } else {
+      let wait = setInterval(() => {
+        if (videoReady) {
+          clearInterval(wait);
+          player.playVideo();
+          startTime = performance.now();
+          gameLoop();
+        }
+      }, 100);
+    }
   });
 
 function getVideoIdForSong(songFileName) {
