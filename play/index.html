@@ -469,9 +469,11 @@ fetch('/musics/videoids.json')
           loadingScreen.textContent = countdown;
 
           // カウントダウン中にYouTube動画を先読みしておく
-          const videoId = getVideoIdForSong(song);
-          player.loadVideoById({ videoId: videoId, startSeconds: 0 });
-          player.pauseVideo();
+          waitForPlayerReady(() => {
+            const videoId = getVideoIdForSong(song);
+            player.loadVideoById({ videoId: videoId, startSeconds: 0 });
+            player.pauseVideo();
+          });
 
           const countdownInterval = setInterval(() => {
             countdown--;
@@ -694,3 +696,10 @@ document.getElementById('replayButton').addEventListener('click', () => {
 </body>
 </html>
 <!--WD!!!!-->
+function waitForPlayerReady(callback) {
+  if (videoReady) {
+    callback();
+  } else {
+    setTimeout(() => waitForPlayerReady(callback), 100);
+  }
+}
