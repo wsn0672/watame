@@ -327,7 +327,7 @@ const lanesContainer = document.getElementById('lanes');
 let resultShown = false;
 
 // グローバル curtainDelay 変数
-let curtainDelay = 500;
+let curtainDelay = 500; // デフォルト値
 
 
 let player;
@@ -474,8 +474,8 @@ fetch('/musics/videoids.json')
   .then(r => r.json())
   .then(map => {
     videoIdMap = map;
-    // curtainDelay: 曲ごとの黒幕降ろしディレイを取得
-    curtainDelay = videoIdMap[song]?.curtainTime || 500;
+    // 動画IDとともに黒幕降ろしタイミングも読み取る
+    curtainDelay = videoIdMap[song]?.curtainTime ?? 500;
     // 譜面JSONを曲名に基づいて取得
     return fetch("/notes/" + chartFile)
       .then(async res => {
