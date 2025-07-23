@@ -438,7 +438,8 @@ document.addEventListener('keydown', e => {
     }
 
     const now = performance.now() - startTime;
-    const timeDiff = now - closestNoteTime;
+    const userDelayMs = parseInt(localStorage.getItem('yt_delay_ms') || '0', 10);
+    const timeDiff = now - closestNoteTime - userDelayMs;
 
     if (closestDistance < 200) {  // 判定をさらに甘く
       const baseScore = 2000;
