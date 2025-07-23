@@ -5,8 +5,8 @@
   <title>遅延キャリブレーター</title>
   <style>
     body {
-      background: black;
-      color: white;
+      background: #ffe6f0;
+      color: black;
       font-family: sans-serif;
       text-align: center;
       padding-top: 50px;
@@ -74,6 +74,8 @@
     }
 
     function blinkIndicator() {
+      const audio = new Audio("/play/Snap.wav");
+      audio.play();
       indicator.style.backgroundColor = 'red';
       setTimeout(() => {
         indicator.style.backgroundColor = '#555';
@@ -98,3 +100,16 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
+    button {
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #ff9eb0;
+    }
