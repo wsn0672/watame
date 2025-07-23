@@ -40,7 +40,7 @@
 <body>
   <h1>遅延キャリブレーション</h1>
   <div id="player"></div>
-  <p>インジケーターが動画のメトロノームに合うように調整してください</p>
+  <p>インジケーターと音声が動画のメトロノームとピッタリ合うように調整してください</p>
   <div id="indicator"></div>
   <p>遅延(ms): <span id="delayLabel">0</span></p>
   <input type="range" id="slider" min="0" max="300" step="1" value="0">
@@ -97,7 +97,7 @@
 
     function saveDelay() {
       localStorage.setItem("yt_delay_ms", delayMs);
-      alert(`遅延 ${delayMs}ms を保存しました`);
+      window.location.href = "/select";
     }
 
     window.onload = () => {
