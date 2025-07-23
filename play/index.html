@@ -678,9 +678,10 @@ function spawnNote(noteData) {
 }
 
 function gameLoop() {
+  const userDelayMs = parseInt(localStorage.getItem('yt_delay_ms') || '0', 10);
   const now = performance.now() - startTime;
   for (let i = 0; i < chart.length; i++) {
-    if (chart[i].time - approachTime <= now) {
+    if (chart[i].time - approachTime + userDelayMs <= now) {
       spawnNote(chart[i]);
       chart.splice(i, 1);
       i--;

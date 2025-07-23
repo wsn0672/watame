@@ -308,9 +308,9 @@
       if (delayStatus) {
         const parsedDelay = Number(storedDelay);
         if (!isNaN(parsedDelay) && parsedDelay >= 0) {
-          delayStatus.textContent = `（${parsedDelay}msの遅延を設定済み）`;
+          delayStatus.textContent = ` (${parsedDelay}msの遅延を設定済み)`;
         } else {
-          delayStatus.textContent = `（遅延未設定）`;
+          delayStatus.textContent = ` (遅延未設定)`;
         }
       }
     });
