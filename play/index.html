@@ -310,6 +310,8 @@
 
 <audio id="resultBGM" src="/musics/resault.mp3" loop></audio>
 
+<audio id="hitSound" src="Snap.wav" preload="auto"></audio>
+
 <script>
 const approachTime = 800; // ノーツが判定ラインに到達するまでの時間(ms)
 const params = new URLSearchParams(location.search);
@@ -380,6 +382,8 @@ function triggerHitEffect(laneIndex) {
   }, 80);
 }
 
+const hitSound = document.getElementById('hitSound');
+
 document.addEventListener('keydown', e => {
   const key = e.key.toLowerCase();
   if (keyMap[key] !== undefined) {
@@ -443,6 +447,8 @@ document.addEventListener('keydown', e => {
       }
 
       score += Math.max(0, noteScore);
+      hitSound.currentTime = 0;
+      hitSound.play();
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
 
       closestNote.remove();
