@@ -129,11 +129,11 @@
       <button id="backButton" style="font-size: 1rem; padding: 10px 20px; border-radius: 10px; border: none; background: #ffb6c1; color: #222; cursor: pointer;">
         ← もどる
       </button>
+    <div id="delayStatus" style="font-size: 1rem; color: black; margin-bottom: 10px;"></div>
       <button id="calibrationButton" style="font-size: 1rem; padding: 10px 20px; border-radius: 10px; border: none; background: #ffb6c1; color: #222; cursor: pointer;">
         遅延を補正する
       </button>
     </div>
-    <div id="delayStatus" style="font-size: 1rem; color: black; margin-bottom: 10px;"></div>
     <ul class="song-list">
       <li><button data-file="wataamepop.mp4">WataAme Pop<br>★</button></li>
       <li><button data-file="aimaishokora-te.mp4">愛昧ショコラーテ<br>★★★</button></li>
@@ -282,6 +282,8 @@
               pinkOverlay.style.opacity = '0';
               headerTitle.style.color = 'white';
               headerNote.style.color = 'white';
+              document.title = "楽曲選択 - WD!!";
+              // document.querySelector('title').style.color = 'white'; // <title> cannot be styled; this line is kept as a comment for reference.
               playVideo(videoInfo.videoId, videoInfo.chorusStart || 0);
             }
           });
