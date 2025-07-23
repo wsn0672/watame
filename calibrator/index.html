@@ -30,7 +30,7 @@
   <p>インジケーターが動画のメトロノームに合うように調整してください</p>
   <div id="indicator"></div>
   <p>遅延(ms): <span id="delayLabel">0</span></p>
-  <input type="range" id="slider" min="-300" max="300" step="10" value="0">
+  <input type="range" id="slider" min="0" max="300" step="1" value="0">
   <br><br>
   <button onclick="saveDelay()">決定して保存する</button>
 
@@ -42,7 +42,7 @@
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
-        height: '0', width: '0',
+        height: '360', width: '640',
         videoId: 'VMNs8USvQBA', 
         playerVars: { autoplay: 1, controls: 0, loop: 1, modestbranding: 1, rel: 0 },
         events: {
