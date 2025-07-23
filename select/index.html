@@ -304,7 +304,7 @@
 
     const storedDelay = localStorage.getItem('customDelayMs');
     const delayStatus = document.getElementById('delayStatus');
-    if (storedDelay !== null && delayStatus) {
+    if (storedDelay !== null && storedDelay !== "" && !isNaN(storedDelay) && delayStatus) {
       delayStatus.textContent = `（${storedDelay}msの遅延を設定済み）`;
     } else if (delayStatus) {
       delayStatus.textContent = `（遅延未設定）`;
