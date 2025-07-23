@@ -128,6 +128,12 @@
     <button id="backButton" style="margin-bottom: 20px; font-size: 1rem; padding: 10px 20px; border-radius: 10px; border: none; background: #ffb6c1; color: #222; cursor: pointer;">
       ← もどる
     </button>
+    <div style="margin-bottom: 20px;">
+      <button id="calibrationButton" style="font-size: 1rem; padding: 10px 20px; border-radius: 10px; border: none; background: #ffb6c1; color: #222; cursor: pointer; margin-right: 10px;">
+        遅延をキャリブレーションする
+      </button>
+      <span id="delayStatus" style="font-size: 1rem;"></span>
+    </div>
     <ul class="song-list">
       <li><button data-file="wataamepop.mp4">WataAme Pop<br>★</button></li>
       <li><button data-file="aimaishokora-te.mp4">愛昧ショコラーテ<br>★★★</button></li>
@@ -291,6 +297,16 @@
           });
         });
       });
+    // Calibration button and delay status
+    document.getElementById('calibrationButton').addEventListener('click', () => {
+      window.location.href = '/calibrator';
+    });
+
+    const storedDelay = localStorage.getItem('customDelayMs');
+    const delayStatus = document.getElementById('delayStatus');
+    if (storedDelay !== null) {
+      delayStatus.textContent = `（${storedDelay}msの遅延を設定済み）`;
+    }
   </script>
 </body>
 </html>
