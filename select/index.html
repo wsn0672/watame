@@ -304,10 +304,13 @@
 
     const storedDelay = localStorage.getItem('customDelayMs');
     const delayStatus = document.getElementById('delayStatus');
-    if (storedDelay !== null && storedDelay !== "" && !isNaN(storedDelay) && delayStatus) {
-      delayStatus.textContent = `（${storedDelay}msの遅延を設定済み）`;
-    } else if (delayStatus) {
-      delayStatus.textContent = `（遅延未設定）`;
+    if (delayStatus) {
+      const parsedDelay = parseInt(storedDelay, 10);
+      if (!isNaN(parsedDelay) && parsedDelay >= 0) {
+        delayStatus.textContent = `（${parsedDelay}msの遅延を設定済み）`;
+      } else {
+        delayStatus.textContent = `（遅延未設定）`;
+      }
     }
   </script>
 </body>
