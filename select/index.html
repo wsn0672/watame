@@ -115,8 +115,8 @@
 
   <header>
     <h1>楽曲選択</h1>
-    <p>※音量注意</p> 
-    <p>たまにバグって背景MVが再生されないことがありますが、一旦ブラウザのタブを閉じて再度アクセスすれば多分治るはずです</p> 
+    <p>※音量注意</p>
+    <p id="noteMessage">たまにバグって背景MVが再生されないことがありますが、一旦ブラウザのタブを閉じて再度アクセスすれば多分治るはずです</p> 
   </header>
 
   <!-- 背景動画 -->
@@ -282,6 +282,8 @@
               pinkOverlay.style.opacity = '0';
               headerTitle.style.color = 'white';
               headerNote.style.color = 'white';
+              const noteMessage = document.getElementById('noteMessage');
+              if (noteMessage) noteMessage.style.color = 'white';
               document.title = "楽曲選択 - WD!!";
               playVideo(videoInfo.videoId, videoInfo.chorusStart || 0);
             }
@@ -291,6 +293,8 @@
             pinkOverlay.style.opacity = '1';
             headerTitle.style.color = 'black';
             headerNote.style.color = 'black';
+            const noteMessage = document.getElementById('noteMessage');
+            if (noteMessage) noteMessage.style.color = 'black';
             if (player && typeof player.pauseVideo === 'function') {
               player.pauseVideo();
               player.seekTo(0, true);
@@ -309,7 +313,7 @@
       if (delayStatus) {
         const parsedDelay = Number(storedDelay);
         if (!isNaN(parsedDelay) && parsedDelay >= 0) {
-          delayStatus.textContent = ` (${parsedDelay}msの遅延を設定済み)`;
+          delayStatus.textContent = ` (現在${parsedDelay}ms)`;
         } else {
           delayStatus.textContent = ` (遅延未設定)`;
         }
