@@ -302,16 +302,18 @@
       window.location.href = '/calibrator';
     });
 
-    const storedDelay = localStorage.getItem('customDelayMs');
-    const delayStatus = document.getElementById('delayStatus');
-    if (delayStatus) {
-      const parsedDelay = parseInt(storedDelay, 10);
-      if (!isNaN(parsedDelay) && parsedDelay >= 0) {
-        delayStatus.textContent = `（${parsedDelay}msの遅延を設定済み）`;
-      } else {
-        delayStatus.textContent = `（遅延未設定）`;
+    window.addEventListener('DOMContentLoaded', () => {
+      const storedDelay = localStorage.getItem('customDelayMs');
+      const delayStatus = document.getElementById('delayStatus');
+      if (delayStatus) {
+        const parsedDelay = Number(storedDelay);
+        if (!isNaN(parsedDelay) && parsedDelay >= 0) {
+          delayStatus.textContent = `（${parsedDelay}msの遅延を設定済み）`;
+        } else {
+          delayStatus.textContent = `（遅延未設定）`;
+        }
       }
-    }
+    });
   </script>
 </body>
 </html>
