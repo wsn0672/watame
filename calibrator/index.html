@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>遅延キャリブレーター</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    #indicator {
+      width: 100px;
+      height: 100px;
+      margin: 20px auto;
+      border-radius: 50%;
+      background-color: #555;
+      transition: background-color 0.1s;
+    }
+    #slider {
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>遅延キャリブレーション</h1>
+  <div id="player"></div>
+  <p>インジケーターが動画のメトロノームに合うように調整してください</p>
+  <div id="indicator"></div>
+  <p>遅延(ms): <span id="delayLabel">0</span></p>
+  <input type="range" id="slider" min="-300" max="300" step="10" value="0">
+  <br><br>
+  <button onclick="saveDelay()">決定して保存する</button>
+
+  <script>
+    let player;
+    let delayMs = 0;
+    let baseBpm = 120;
+    let lastBeat = 0;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '0', width: '0',
+        videoId: 'VMNs8USvQBA', 
+        playerVars: { autoplay: 1, controls: 0, loop: 1, modestbranding: 1, rel: 0 },
+        events: {
+          onReady: () => player.playVideo()
+        }
+      });
+    }
+
+    const indicator = document.getElementById("indicator");
+    const slider = document.getElementById("slider");
+    const label = document.getElementById("delayLabel");
+
+    slider.addEventListener("input", () => {
+      delayMs = parseInt(slider.value);
+      label.textContent = delayMs;
+    });
+
+    function startBlinkLoop() {
+      setInterval(() => {
+        if (!player || typeof player.getCurrentTime !== 'function') return;
+        const time = player.getCurrentTime();
+        const beatLength = 60 / baseBpm; // 秒
+        const currentBeat = Math.floor((time + delayMs / 1000) / beatLength);
+        if (currentBeat !== lastBeat) {
+          lastBeat = currentBeat;
+          blinkIndicator();
+        }
+      }, 10);
+    }
+
+    function blinkIndicator() {
+      indicator.style.backgroundColor = 'red';
+      setTimeout(() => {
+        indicator.style.backgroundColor = '#555';
+      }, 100);
+    }
+
+    function saveDelay() {
+      localStorage.setItem("yt_delay_ms", delayMs);
+      alert(`遅延 ${delayMs}ms を保存しました`);
+    }
+
+    window.onload = () => {
+      const saved = localStorage.getItem("yt_delay_ms");
+      if (saved !== null) {
+        delayMs = parseInt(saved);
+        slider.value = delayMs;
+        label.textContent = delayMs;
+      }
+      startBlinkLoop();
+    };
+  </script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
