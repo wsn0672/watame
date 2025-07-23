@@ -438,7 +438,7 @@ document.addEventListener('keydown', e => {
     }
 
     const now = performance.now() - startTime;
-    const userDelayMs = parseInt(localStorage.getItem('yt_delay_ms') || '0', 10);
+    const userDelayMs = -parseInt(localStorage.getItem('yt_delay_ms') || '0', 10);  // 補正値を反転
     const timeDiff = now - closestNoteTime - userDelayMs;
 
     if (closestDistance < 200) {  // 判定をさらに甘く
@@ -679,7 +679,7 @@ function spawnNote(noteData) {
 }
 
 function gameLoop() {
-  const userDelayMs = parseInt(localStorage.getItem('yt_delay_ms') || '0', 10);
+  const userDelayMs = -parseInt(localStorage.getItem('yt_delay_ms') || '0', 10);  // 補正値を反転
   const now = performance.now() - startTime;
   for (let i = 0; i < chart.length; i++) {
     if (chart[i].time - approachTime + userDelayMs <= now) {
@@ -719,9 +719,9 @@ function showResult() {
       let rank = "C";
       if (scoreRatio >= 1.0) {
         rank = "神";
-      } else if (scoreRatio >= 0.8) {
+      } else if (scoreRatio >= 0.9) {
         rank = "S";
-      } else if (scoreRatio >= 0.5) {
+      } else if (scoreRatio >= 0.6) {
         rank = "A";
       } else if (scoreRatio >= 0.3) {
         rank = "B";
