@@ -229,13 +229,11 @@
     }
 
     function onPlayerReady(event) {
-      // Initially muted and paused
       event.target.mute();
       event.target.pauseVideo();
     }
 
     function onPlayerStateChange(event) {
-      // Optional: handle state changes if needed
     }
 
     document.body.addEventListener('click', () => {

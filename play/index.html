@@ -723,7 +723,7 @@ function showResult() {
       const rankElement = document.createElement('div');
       rankElement.style.fontSize = '3rem';
       rankElement.style.marginTop = '20px';
-      rankElement.textContent = `Rank<br>${rank}`;
+      rankElement.innerHTML = `Rank<br>${rank}`;
       finalScoreTitle.appendChild(rankElement);
       // スコアとランクをグローバル変数に保存
       window.__lastRank = rank;
