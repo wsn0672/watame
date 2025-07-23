@@ -1,10 +1,10 @@
 {
-  "mysong.mp4": { "videoId": "6VGkeUaX-zk", "chorusStart": 45.5 },
-  "aimaishokora-te.mp4": { "videoId": "P8OjkcLzYCM", "chorusStart": 101.5 },
-  "watameister.mp4": { "videoId": "ZMLJMxKgjLU", "chorusStart": 77.5 },
-  "biri.mp4": { "videoId": "cVT_yB1qpYY", "chorusStart": 58 },
-  "nowonstep.mp4": { "videoId": "HqcIrWb_vR0", "chorusStart": 44 },
-  "wataamepop.mp4": { "videoId": "mmTmdMGbk_M", "chorusStart": 37.8 },
-  "whatanamazingswing.mp4": { "videoId": "d3UTywBDSW4", "chorusStart": 47.5 },
-  "yumemiruhituji.mp4": { "videoId": "ozH28qYrMy4", "chorusStart": 70.6 }
+  "mysong.mp4": { "videoId": "6VGkeUaX-zk", "chorusStart": 45.5 ,"curtainTime": 200},
+  "aimaishokora-te.mp4": { "videoId": "P8OjkcLzYCM", "chorusStart": 101.5 ,"curtainTime": 277},
+  "watameister.mp4": { "videoId": "ZMLJMxKgjLU", "chorusStart": 77.5 ,"curtainTime": 248},
+  "biri.mp4": { "videoId": "cVT_yB1qpYY", "chorusStart": 58 ,"curtainTime": 222},
+  "nowonstep.mp4": { "videoId": "HqcIrWb_vR0", "chorusStart": 44 ,"curtainTime": 234},
+  "wataamepop.mp4": { "videoId": "mmTmdMGbk_M", "chorusStart": 37.8 ,"curtainTime": 188},
+  "whatanamazingswing.mp4": { "videoId": "d3UTywBDSW4", "chorusStart": 47.5 ,"curtainTime": 180},
+  "yumemiruhituji.mp4": { "videoId": "ozH28qYrMy4", "chorusStart": 70.6 ,"curtainTime": 204}
 }
