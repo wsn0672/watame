@@ -714,9 +714,10 @@ function showResult() {
 
 function triggerCurtain() {
   resultOverlay.classList.add('show');
+
   resultBGM.currentTime = 0;
   resultBGM.play();
-
+  
   // Scoreタイトルフェードイン
   finalScoreTitle.style.opacity = '1';
 
@@ -743,7 +744,7 @@ function triggerCurtain() {
     rankElement.innerHTML = `Rank<br>${rank}`;
     finalScoreTitle.appendChild(rankElement);
     window.__lastRank = rank;
-  }, 1000);
+  }, 3000); // BGM再生後にスコア表示
 }
 
 //Xでシェア
