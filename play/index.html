@@ -514,7 +514,6 @@ fetch('/musics/videoids.json')
                 player.playVideo();
                 startTime = performance.now();
                 gameLoop();
-                onGameReady(); // 黒幕タイミングをセット
               } else {
                 let wait = setInterval(() => {
                   if (videoReady) {
@@ -523,7 +522,6 @@ fetch('/musics/videoids.json')
                     player.playVideo();
                     startTime = performance.now();
                     gameLoop();
-                    onGameReady(); // 黒幕タイミングをセット
                   }
                 }, 100);
               }
@@ -697,25 +695,18 @@ function gameLoop() {
 // 動画終了はonPSCで処理
 
 function showResult() {
-  // 黒幕表示を一旦非表示のままにしておく
   resultOverlay.style.display = 'flex';
+  lanesContainer.style.display = 'none';
   resultOverlay.classList.remove('show');
 
-  // レーン非表示
-  lanesContainer.style.display = 'none';
-
-  // 即時またはJSON指定タイミングで黒幕を降ろす
-  if (curtainDelay <= 0) {
+  // curtainDelay後に黒幕を降ろす（クラス追加）
+  setTimeout(() => {
     triggerCurtain();
-  } else {
-    setTimeout(triggerCurtain, curtainDelay);
-  }
+  }, curtainDelay);
 }
 
 function triggerCurtain() {
-  console.log("黒幕おろすよー")
   resultOverlay.classList.add('show');
-
   resultBGM.currentTime = 0;
   resultBGM.play();
 
@@ -745,7 +736,7 @@ function triggerCurtain() {
     rankElement.innerHTML = `Rank<br>${rank}`;
     finalScoreTitle.appendChild(rankElement);
     window.__lastRank = rank;
-  }, 3000); // BGM再生後にスコア表示
+  }, 1000);
 }
 
 //Xでシェア
@@ -761,28 +752,6 @@ document.getElementById('shareXButton').addEventListener('click', () => {
 document.getElementById('replayButton').addEventListener('click', () => {
   window.location.href = '/select';
 });
-// 黒幕を降ろすタイミングをJSONから取得したcurtainTimeで設定し、その時間が来たら黒幕を降ろす関数を呼び出す
-function scheduleCurtain(curtainTime) {
-  console.log(`黒幕を降ろす時間: ${curtainTime}ms`);
-  setTimeout(() => {
-    console.log('黒幕を降ろすよ！');
-    triggerCurtain();
-  }, curtainTime);
-}
-
-// 譜面や動画が準備できた後にスケジューリングする
-function onGameReady() {
-  if (!player || !videoReady) return;
-
-  const videoDuration = player.getDuration() * 1000; // 秒→ミリ秒
-  const curtainTime = videoDuration - 3000; // 終了3秒前
-
-  if (curtainTime > 0) {
-    scheduleCurtain(curtainTime);
-  } else {
-    triggerCurtain();
-  }
-}
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
 </body>
