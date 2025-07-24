@@ -476,6 +476,8 @@ fetch('/musics/videoids.json')
   .then(map => {
     videoIdMap = map;
     // 動画IDとともに黒幕降ろしタイミングも読み取る
+    console.log("videoIdMap[song]:", videoIdMap[song]);
+    console.log("curtainTime from JSON:", videoIdMap[song]?.curtainTime);
     curtainDelay = videoIdMap[song]?.curtainTime ?? 500;
     // 譜面JSONを曲名に基づいて取得
     return fetch("/notes/" + chartFile)
