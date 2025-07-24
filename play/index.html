@@ -667,7 +667,6 @@ function spawnNote(noteData) {
           }
           showJudgment("MISS");
           note.remove();
-          // Check if all notes are gone and chart is empty
           if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
             setTimeout(showResult, 500);
           }
@@ -691,7 +690,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// 動画終了はonPlayerStateChangeで処理
+// 動画終了はonPSCで処理
 
 function showResult() {
   // 黒幕表示を一旦非表示のままにしておく
@@ -701,41 +700,46 @@ function showResult() {
   // レーン非表示
   lanesContainer.style.display = 'none';
 
-  // curtainDelay後に黒幕を降ろす
+  // 即時またはJSON指定タイミングで黒幕を降ろす
+  if (curtainDelay <= 0) {
+    triggerCurtain();
+  } else {
+    setTimeout(triggerCurtain, curtainDelay);
+  }
+}
+
+function triggerCurtain() {
+  resultOverlay.classList.add('show');
+  resultBGM.currentTime = 0;
+  resultBGM.play();
+
+  // Scoreタイトルフェードイン
+  finalScoreTitle.style.opacity = '1';
+
+  // 数字フェードイン（タイトルの後）
   setTimeout(() => {
-    resultOverlay.classList.add('show');
-    resultBGM.currentTime = 0;
-    resultBGM.play();
+    finalScoreTitle.innerHTML = `Score<br>${score}`;
 
-    // Scoreタイトルフェードイン
-    finalScoreTitle.style.opacity = '1';
+    // ランク判定と表示
+    const scoreRatio = maxPossibleScore > 0 ? (score / maxPossibleScore) : 0;
+    let rank = "C";
+    if (scoreRatio >= 1.0) {
+      rank = "神";
+    } else if (scoreRatio >= 0.9) {
+      rank = "S";
+    } else if (scoreRatio >= 0.6) {
+      rank = "A";
+    } else if (scoreRatio >= 0.3) {
+      rank = "B";
+    }
 
-    // 数字フェードイン（タイトルの後）
-    setTimeout(() => {
-      finalScoreTitle.innerHTML = `Score<br>${score}`;
-
-      // ランク判定と表示
-      const scoreRatio = maxPossibleScore > 0 ? (score / maxPossibleScore) : 0;
-      let rank = "C";
-      if (scoreRatio >= 1.0) {
-        rank = "神";
-      } else if (scoreRatio >= 0.9) {
-        rank = "S";
-      } else if (scoreRatio >= 0.6) {
-        rank = "A";
-      } else if (scoreRatio >= 0.3) {
-        rank = "B";
-      }
-
-      const rankElement = document.createElement('div');
-      rankElement.style.fontSize = '3rem';
-      rankElement.style.marginTop = '20px';
-      rankElement.innerHTML = `Rank<br>${rank}`;
-      finalScoreTitle.appendChild(rankElement);
-      // スコアとランクをグローバル変数に保存
-      window.__lastRank = rank;
-    }, 1000);
-  }, curtainDelay);
+    const rankElement = document.createElement('div');
+    rankElement.style.fontSize = '3rem';
+    rankElement.style.marginTop = '20px';
+    rankElement.innerHTML = `Rank<br>${rank}`;
+    finalScoreTitle.appendChild(rankElement);
+    window.__lastRank = rank;
+  }, 1000);
 }
 
 //Xでシェア
