@@ -713,11 +713,12 @@ function showResult() {
 }
 
 function triggerCurtain() {
+  console.log("黒幕おろすよー")
   resultOverlay.classList.add('show');
 
   resultBGM.currentTime = 0;
   resultBGM.play();
-  
+
   // Scoreタイトルフェードイン
   finalScoreTitle.style.opacity = '1';
 
