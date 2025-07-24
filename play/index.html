@@ -179,7 +179,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0,0,0,0.9);
+      background: rgb(0, 0, 0);
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -715,7 +715,7 @@ function triggerCurtain() {
 
   // 数字フェードイン（タイトルの後）
   setTimeout(() => {
-    finalScoreTitle.innerHTML = `Score<br>${score}`;
+    finalScoreTitle.innerHTML = `Score<br>${score}<span style="font-size:2rem;"> / ${maxPossibleScore}</span>`;
 
     // ランク判定と表示
     const scoreRatio = maxPossibleScore > 0 ? (score / maxPossibleScore) : 0;
