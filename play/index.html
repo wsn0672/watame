@@ -514,6 +514,7 @@ fetch('/musics/videoids.json')
                 player.playVideo();
                 startTime = performance.now();
                 gameLoop();
+                onGameReady(); // 黒幕タイミングをセット
               } else {
                 let wait = setInterval(() => {
                   if (videoReady) {
@@ -522,6 +523,7 @@ fetch('/musics/videoids.json')
                     player.playVideo();
                     startTime = performance.now();
                     gameLoop();
+                    onGameReady(); // 黒幕タイミングをセット
                   }
                 }, 100);
               }
@@ -757,6 +759,20 @@ document.getElementById('shareXButton').addEventListener('click', () => {
 document.getElementById('replayButton').addEventListener('click', () => {
   window.location.href = '/select';
 });
+// 黒幕を降ろすタイミングをJSONから取得したcurtainTimeで設定し、その時間が来たら黒幕を降ろす関数を呼び出す
+function scheduleCurtain(curtainTime) {
+  console.log(`黒幕を降ろす時間: ${curtainTime}ms`);
+  setTimeout(() => {
+    console.log('黒幕を降ろすよ！');
+    triggerCurtain();
+  }, curtainTime);
+}
+
+// 譜面や動画が準備できた後にスケジューリングする
+function onGameReady() {
+  const curtainTime = parseInt(videoIdMap[song]?.curtainTime) || 500;
+  scheduleCurtain(curtainTime);
+}
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
 </body>
