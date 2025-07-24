@@ -770,8 +770,16 @@ function scheduleCurtain(curtainTime) {
 
 // 譜面や動画が準備できた後にスケジューリングする
 function onGameReady() {
-  const curtainTime = parseInt(videoIdMap[song]?.curtainTime) || 500;
-  scheduleCurtain(curtainTime);
+  if (!player || !videoReady) return;
+
+  const videoDuration = player.getDuration() * 1000; // 秒→ミリ秒
+  const curtainTime = videoDuration - 3000; // 終了3秒前
+
+  if (curtainTime > 0) {
+    scheduleCurtain(curtainTime);
+  } else {
+    triggerCurtain();
+  }
 }
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
