@@ -725,15 +725,21 @@ function triggerCurtain() {
 
     // ランク判定と表示
     const scoreRatio = maxPossibleScore > 0 ? (score / maxPossibleScore) : 0;
-    let rank = "C";
+    let rank = "F";
     if (scoreRatio >= 1.0) {
       rank = "神";
-    } else if (scoreRatio >= 0.8) {
-      rank = "S";
     } else if (scoreRatio >= 0.6) {
+      rank = "S";
+    } else if (scoreRatio >= 0.5) {
       rank = "A";
-    } else if (scoreRatio >= 0.3) {
+    } else if (scoreRatio >= 0.4) {
       rank = "B";
+    } else if (scoreRatio >= 0.3) {
+      rank = "C";
+    } else if (scoreRatio >= 0.2) {
+      rank = "D";
+    } else if (scoreRatio >= 0.1) {
+      rank = "E";
     }
 
     const rankElement = document.createElement('div');
