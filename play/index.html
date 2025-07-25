@@ -449,9 +449,8 @@ document.addEventListener('keydown', e => {
         noteScore *= 2;
       }
 
-      const maxScore = parseInt(closestNote.dataset.maxScore || "1000", 10);
-      noteScore = Math.min(noteScore, maxScore); // 上限超えを防ぐ
       score += Math.max(0, noteScore);
+      console.log("スコア加算：" + noteScore)
       hitSound.currentTime = 0;
       hitSound.play();
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
@@ -585,12 +584,12 @@ function spawnNote(noteData) {
     noteType = "double";
   }
 
-  let noteScoreMax = 1000;
+  // スコア上限加算
   if (noteType === "double") {
-    noteScoreMax = 2000;
+    maxPossibleScore += 2000;
+  } else {
+    maxPossibleScore += 1000;
   }
-  maxPossibleScore += noteScoreMax;
-  note.dataset.maxScore = noteScoreMax; // このノーツの最大スコアを記録
 
   const note = document.createElement('div');
   note.classList.add('note', noteType);
