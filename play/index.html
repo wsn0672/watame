@@ -402,7 +402,6 @@ document.addEventListener('keydown', e => {
     if (notes.length === 0) {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
-      // Check if all notes are gone and chart is empty
       if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
         setTimeout(showResult, 500);
       }
@@ -450,6 +449,8 @@ document.addEventListener('keydown', e => {
         noteScore *= 2;
       }
 
+      const maxScore = parseInt(closestNote.dataset.maxScore || "1000", 10);
+      noteScore = Math.min(noteScore, maxScore); // 上限超えを防ぐ
       score += Math.max(0, noteScore);
       hitSound.currentTime = 0;
       hitSound.play();
@@ -584,12 +585,12 @@ function spawnNote(noteData) {
     noteType = "double";
   }
 
-  // スコア上限加算
+  let noteScoreMax = 1000;
   if (noteType === "double") {
-    maxPossibleScore += 2000;
-  } else {
-    maxPossibleScore += 1000;
+    noteScoreMax = 2000;
   }
+  maxPossibleScore += noteScoreMax;
+  note.dataset.maxScore = noteScoreMax; // このノーツの最大スコアを記録
 
   const note = document.createElement('div');
   note.classList.add('note', noteType);
