@@ -716,13 +716,19 @@ function triggerCurtain() {
   // 数字フェードイン（タイトルの後）
   setTimeout(() => {
     finalScoreTitle.innerHTML = `Score<br>${score}<span style="font-size:2rem;"> / ${maxPossibleScore}</span>`;
+    const percentage = ((score / maxPossibleScore) * 100).toFixed(2);
+    const percentageElement = document.createElement('div');
+    percentageElement.style.fontSize = '1.5rem';
+    percentageElement.style.marginTop = '10px';
+    percentageElement.textContent = `(${percentage}%)`;
+    finalScoreTitle.appendChild(percentageElement);
 
     // ランク判定と表示
     const scoreRatio = maxPossibleScore > 0 ? (score / maxPossibleScore) : 0;
     let rank = "C";
     if (scoreRatio >= 1.0) {
       rank = "神";
-    } else if (scoreRatio >= 0.9) {
+    } else if (scoreRatio >= 0.8) {
       rank = "S";
     } else if (scoreRatio >= 0.6) {
       rank = "A";
