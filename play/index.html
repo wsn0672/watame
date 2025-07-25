@@ -638,9 +638,9 @@ function spawnNote(noteData) {
       } else {
         if (document.body.contains(note)) {
           if (note.classList.contains('double')) {
-            score -= Math.floor(score * 0.2);
-          } else {
             score -= Math.floor(score * 0.1);
+          } else {
+            score -= Math.floor(score * 0.05);
           }
           showJudgment("MISS");
           note.remove();
