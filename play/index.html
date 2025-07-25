@@ -338,7 +338,7 @@ function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '100%',
     width: '100%',
-    videoId: '', // will load dynamically
+    videoId: '',
     playerVars: {
       autoplay: 0,
       controls: 0,
@@ -357,7 +357,6 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerStateChange(event) {
-  // Do nothing
 }
 
 const lanes = document.querySelectorAll('.lane');
@@ -373,7 +372,7 @@ let maxPossibleScore = 0;
 function showJudgment(text) {
   judgmentText.textContent = text;
   judgmentText.style.animation = 'none';
-  void judgmentText.offsetWidth; // force reflow to restart animation
+  void judgmentText.offsetWidth; 
   judgmentText.style.animation = 'slideFadeOut 0.5s ease forwards';
 }
 
@@ -429,7 +428,6 @@ document.addEventListener('keydown', e => {
     if (!closestNote) {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
-      // Check if all notes are gone and chart is empty
       if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
         setTimeout(showResult, 500);
       }
@@ -456,14 +454,12 @@ document.addEventListener('keydown', e => {
       showJudgment(`${timeDiff >= 0 ? "+" : ""}${Math.round(timeDiff)}ms`);
 
       closestNote.remove();
-      // Check if all notes are gone and chart is empty
       if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
         setTimeout(showResult, 500);
       }
     } else {
       score -= Math.floor(score * 0.1);
       showJudgment("MISS");
-      // Check if all notes are gone and chart is empty
       if (document.querySelectorAll('.note').length === 0 && chart.length === 0) {
         setTimeout(showResult, 500);
       }
